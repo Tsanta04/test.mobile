@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';           // to persist theme selection across app launches
+import { ColorType } from '@/constants/type';
 
 type Theme = 'light' | 'dark';
 
@@ -7,18 +8,7 @@ type Theme = 'light' | 'dark';
 interface ThemeContextType {
   theme: Theme;                   
   toggleTheme: () => void;
-  colors: {                       
-    background: string;
-    surface: string;
-    primary: string;
-    secondary: string;
-    text: string;
-    textSecondary: string;
-    border: string;
-    error: string;
-    success: string;
-    warning: string;
-  };
+  colors: ColorType;
 }
 
 // Define color palette for Light Mode
@@ -58,12 +48,10 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light'); // Thème par défaut : clair
 
-  // Load saved theme from AsyncStorage on first render
   useEffect(() => {
     loadTheme();
   }, []);
 
-  // Async function to load persisted theme value
   const loadTheme = async () => {
     try {
       const savedTheme = await AsyncStorage.getItem('theme');
@@ -75,7 +63,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Toggle between light and dark themes, and persist selection
   const toggleTheme = async () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
@@ -86,7 +73,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Determine the color palette based on current theme
   const colors = theme === 'light' ? lightColors : darkColors;
 
   return (
