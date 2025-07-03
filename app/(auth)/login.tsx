@@ -7,16 +7,19 @@ import {
   ScrollView,
   StyleSheet,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Alert
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/contexts/ThemeContext';
 import { router } from 'expo-router';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react-native';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginScreen() {
   // Access the current theme colors (light/dark)
   const { colors } = useTheme();
+  const { login } = useAuth();
 
   // Form state
   const [email, setEmail] = useState('');
@@ -51,7 +54,22 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     if (!validateForm()) return;
     console.log("Form validated");
-    // TODO: Implement real login logic, e.g., check in AsyncStorage
+    setIsLoading(true);
+
+    //Do login
+    try {
+      const success = await login(email, password);
+      if (success) {
+        router.replace('/(tabs)');
+      } else {
+        Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+
   };
 
   // Stylesheet definition

@@ -14,11 +14,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/contexts/ThemeContext';
 import { router } from 'expo-router';
 import { Eye, EyeOff, Mail, Lock, User, UserPlus, ArrowLeft } from 'lucide-react-native';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Registration screen component
 export default function RegisterScreen() {
   // Theme colors from context
   const { colors } = useTheme();
+  const { register } = useAuth();  
 
   // Form state variables
   const [name, setName] = useState('');
@@ -90,7 +92,25 @@ export default function RegisterScreen() {
   const handleRegister = async () => {
     if (!validateForm()) return;
     console.log("Form submitted");
-    // Here you would send the data to your backend or API
+    setIsLoading(true);
+    try {
+      const success = await register(name.trim(), email, password);
+
+      if (success) {
+        Alert.alert(
+          'Registration Successful',
+          'Your account has been created successfully. Please log in.',
+          [{ text: 'OK', onPress: () => router.replace('/(auth)/login') }]
+        );
+      } else {
+        Alert.alert('Registration Failed', 'This email is already registered. Please use a different email.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+
   };
 
   // Define styles using the current theme
