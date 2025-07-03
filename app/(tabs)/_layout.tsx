@@ -1,8 +1,18 @@
-import { Tabs } from 'expo-router';
+import { useAuth } from '@/contexts/AuthContext';
+import { Redirect, Tabs } from 'expo-router';
 import { Chrome as Home, Bell, User } from 'lucide-react-native';
 import { View, Text, StyleSheet } from 'react-native';
 
 export default function TabLayout() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (!user) {
+    return <Redirect href="/welcome" />;
+  }
 
   return (
     <Tabs
