@@ -1,12 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function ProductsScreen() {
+export default function AnalyticsScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>LISTE PRODUIT (PAGE PRINCIPALE)</Text>
+      <Text style={styles.title}>PAGE STAT DES PRODUITS</Text>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

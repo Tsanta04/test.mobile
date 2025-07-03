@@ -1,12 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function ProductsScreen() {
+export default function LoginScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>LISTE PRODUIT (PAGE PRINCIPALE)</Text>
+      <Text style={styles.title}>LOGIN</Text>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

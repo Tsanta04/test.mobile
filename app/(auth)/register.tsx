@@ -1,12 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function ProductsScreen() {
+export default function RegisterScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>LISTE PRODUIT (PAGE PRINCIPALE)</Text>
+      <Text style={styles.title}>REGISTER</Text>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

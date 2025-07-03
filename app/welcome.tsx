@@ -1,12 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function ProductsScreen() {
+export default function WelcomeScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>LISTE PRODUIT (PAGE PRINCIPALE)</Text>
+      <Text style={styles.title}>WELCOME PAGE</Text>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

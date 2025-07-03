@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function ProductsScreen() {
+export default function AddProductScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>LISTE PRODUIT (PAGE PRINCIPALE)</Text>
+      <Text style={styles.title}>AJOUTER PRODUIT</Text>
     </View>
   );
 }
