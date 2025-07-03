@@ -31,6 +31,7 @@ export default function RegisterScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+
   // Validation errors state
   const [errors, setErrors] = useState<{
     name?: string;
@@ -38,6 +39,7 @@ export default function RegisterScreen() {
     password?: string;
     confirmPassword?: string;
   }>({});
+
 
   /**
    * Validate the registration form
@@ -85,6 +87,7 @@ export default function RegisterScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
+
   /**
    * Handle form submission
    * Called when the user presses the "Create Account" button
@@ -112,6 +115,7 @@ export default function RegisterScreen() {
     }
 
   };
+
 
   // Define styles using the current theme
   const styles = StyleSheet.create({
@@ -237,6 +241,7 @@ export default function RegisterScreen() {
     },
   });
 
+  
   // Render the registration screen UI
   return (
     <KeyboardAvoidingView

@@ -28,6 +28,7 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
+
   // Form validation logic
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -50,6 +51,7 @@ export default function LoginScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
+
   // Simulated login handler
   const handleLogin = async () => {
     if (!validateForm()) return;
@@ -71,6 +73,7 @@ export default function LoginScreen() {
     }
 
   };
+
 
   // Stylesheet definition
   const styles = StyleSheet.create({
@@ -202,6 +205,7 @@ export default function LoginScreen() {
     },
   });
 
+  
   return (
     <KeyboardAvoidingView
       style={styles.container}
