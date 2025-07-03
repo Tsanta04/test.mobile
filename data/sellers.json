@@ -1,0 +1,30 @@
+[
+  {
+    "id": "1",
+    "name": "TechStore"
+  },
+  {
+    "id": "2",
+    "name": "AppleStore"
+  },
+  {
+    "id": "3",
+    "name": "SportWorld"
+  },
+  {
+    "id": "4",
+    "name": "HomeDecor"
+  },
+  {
+    "id": "5",
+    "name": "BookWorm"
+  },
+  {
+    "id": "6",
+    "name": "BeautyHub"
+  },
+  {
+    "id": "7",
+    "name": "AutoParts"
+  }
+]
