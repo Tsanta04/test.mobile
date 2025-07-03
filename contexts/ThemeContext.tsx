@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';           // pour sauvegarder le thème entre les sessions
+import AsyncStorage from '@react-native-async-storage/async-storage';           // to persist theme selection across app launches
 
 type Theme = 'light' | 'dark';
 
-// La forme du contexte de thème
+// Define allowed theme types
 interface ThemeContextType {
   theme: Theme;                   
   toggleTheme: () => void;
@@ -21,7 +21,7 @@ interface ThemeContextType {
   };
 }
 
-// Palette de couleurs pour le mode clair
+// Define color palette for Light Mode
 const lightColors = {
   background: '#FFFFFF',      
   surface: '#E2E8F0',         
@@ -35,7 +35,7 @@ const lightColors = {
   warning: '#F59E0B',         
 };
 
-// Palette de couleurs pour le mode sombre
+// Define color palette for Dark Mode
 const darkColors = {
   background: '#0F172A',      
   surface: '#1E293B',         
@@ -49,22 +49,21 @@ const darkColors = {
   warning: '#FBBF24',      
 };
 
-// Création du contexte avec undefined par défaut
+// Create a context with undefined as default value
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 /**
- * Composant ThemeProvider
- * - Englobe l'application pour fournir le contexte de thème
+ * ThemeProvider component wraps the entire app to provide theme context
  */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light'); // Thème par défaut : clair
 
-  // Chargement du thème sauvegardé au premier rendu
+  // Load saved theme from AsyncStorage on first render
   useEffect(() => {
     loadTheme();
   }, []);
 
-  // Fonction pour charger la valeur du thème depuis AsyncStorage
+  // Async function to load persisted theme value
   const loadTheme = async () => {
     try {
       const savedTheme = await AsyncStorage.getItem('theme');
@@ -76,7 +75,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Fonction pour basculer entre les thèmes et sauvegarder la sélection
+  // Toggle between light and dark themes, and persist selection
   const toggleTheme = async () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
@@ -87,7 +86,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Choix de la palette de couleurs en fonction du thème actif
+  // Determine the color palette based on current theme
   const colors = theme === 'light' ? lightColors : darkColors;
 
   return (
@@ -98,9 +97,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * Hook personnalisé useTheme
- * - Permet à n'importe quel composant d'accéder au contexte du thème
- * - Lève une erreur si utilisé en dehors du ThemeProvider
+ * useTheme custom hook
+ * - Allows any component to access the theme context
+ * - Throws an error if used outside of ThemeProvider
  */
 export function useTheme() {
   const context = useContext(ThemeContext);
