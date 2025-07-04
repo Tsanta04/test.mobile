@@ -1,3 +1,5 @@
+import { ColorValue } from "react-native";
+
 export  type ColorType = {                       
     background: string;
     surface: string;
@@ -29,3 +31,24 @@ export type ProductFormProps = {
     setFormData: (formData: ProductType) => void,
     title: string
 }
+
+export type ChartDataPoint = {
+    label: string;
+    value: number;
+    color?: ColorValue;
+}
+
+export type StatProductType = {
+    totalProducts:number;
+    totalValue:number;
+    totalStock:number;
+    averagePrice:number;
+    highestPriced:number;
+    lowestPriced:number;
+    averageStock:number;
+    categoryData: ChartDataPoint[];
+    sellerData: ChartDataPoint[];    
+    priceRangeData:ChartDataPoint[];
+    stockRangeData :ChartDataPoint[]
+}
+

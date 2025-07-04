@@ -16,58 +16,26 @@ import Header from '@/components/Header';
 import NotificationItem from '@/components/Notification/NotificationItem';
 import { Notification, useNotif } from '@/contexts/NotifContext';
 
-const getNotificationIcon = (type: Notification['type']) => {
-  switch (type) {
-    case 'product_added':
-      return Package;
-    case 'product_updated':
-      return Edit;
-    case 'category_added':
-      return Package;
-    case 'seller_added':
-      return Package;
-    case 'product_deleted':      
-      return Trash2;
-    case 'profile_updated':
-      return User;
-    default:
-      return Bell;
-  }
-};
-
-const getNotificationColor = (type: Notification['type'], colors: any) => {
-  switch (type) {
-    case 'product_added':
-      return colors.success;
-    case 'category_added':
-      return colors.success;      
-    case 'seller_added':
-      return colors.success;
-    case 'product_updated':
-      return colors.warning;
-    case 'product_deleted':
-      return colors.error;
-    case 'profile_updated':
-      return colors.primary;
-    default:
-      return colors.textSecondary;
-  }
-};
-
+// NotificationsScreen: Displays a list of notifications for the current user, with mark-as-read and mark-all-read functionality
 export default function NotificationsScreen() {
+  // Get notifications, user, and theme from context
   const { notifications, markNotificationAsRead, markAllNotificationsAsRead } = useNotif();
   const { user } = useAuth();
   const { colors, theme, toggleTheme } = useTheme();
   const [refreshing, setRefreshing] = React.useState(false);
 
+  // Filter notifications for the current user
   const userNotifications = notifications.filter(n => n.userId === user?.id);
+  // Count unread notifications
   const unreadCount = userNotifications.filter(n => !n.read).length;
 
+  // Handler for pull-to-refresh
   const onRefresh = () => {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 1000);
   };
 
+  // Format the notification timestamp as a relative time string
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
     const now = new Date();
@@ -84,6 +52,7 @@ export default function NotificationsScreen() {
     }
   };
 
+  // Render a single notification item
   const renderNotification = ({ item: notification }: { item: Notification }) => {
     const IconComponent = getNotificationIcon(notification.type);
     const iconColor = getNotificationColor(notification.type, colors);
@@ -228,3 +197,43 @@ export default function NotificationsScreen() {
     </View>
   );
 }
+
+// Helper to get the correct icon for each notification type
+const getNotificationIcon = (type: Notification['type']) => {
+  switch (type) {
+    case 'product_added':
+      return Package;
+    case 'product_updated':
+      return Edit;
+    case 'category_added':
+      return Package;
+    case 'seller_added':
+      return Package;
+    case 'product_deleted':      
+      return Trash2;
+    case 'profile_updated':
+      return User;
+    default:
+      return Bell;
+  }
+};
+
+// Helper to get the correct color for each notification type
+const getNotificationColor = (type: Notification['type'], colors: any) => {
+  switch (type) {
+    case 'product_added':
+      return colors.success;
+    case 'category_added':
+      return colors.success;      
+    case 'seller_added':
+      return colors.success;
+    case 'product_updated':
+      return colors.warning;
+    case 'product_deleted':
+      return colors.error;
+    case 'profile_updated':
+      return colors.primary;
+    default:
+      return colors.textSecondary;
+  }
+};

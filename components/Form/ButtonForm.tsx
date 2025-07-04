@@ -3,14 +3,23 @@ import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, ColorValue } 
 import { LinearGradient } from 'expo-linear-gradient';
 import { ColorType } from '@/constants/type';
 
+// ButtonForm: A reusable gradient button component with optional icon and loading state
 interface GradientButtonProps {
+  // Function to call when button is pressed
   onPress: () => void;
+  // Whether the button is disabled
   disabled?: boolean;
+  // Whether to show loading state
   isLoading?: boolean;
+  // Text to show when loading
   loadingText?: string;
+  // Button text
   text: string;
+  // Gradient colors
   colors: readonly [ColorValue, ColorValue, ...ColorValue[]];
+  // Optional icon to display
   icon?: React.ReactNode;
+  // Optional style override
   style?: ViewStyle;
 }
 
@@ -24,6 +33,7 @@ const ButtonForm: React.FC<GradientButtonProps> = ({
   icon,
   style
 }) => {
+  // Styles for the button and its elements
   const styles = StyleSheet.create({
     loginButton: {
         marginTop: 8,
@@ -46,6 +56,7 @@ const ButtonForm: React.FC<GradientButtonProps> = ({
   });
 
   return (
+    // Touchable button with gradient background and optional icon
     <TouchableOpacity
       onPress={onPress}
       style={[styles.loginButton, style]}

@@ -1,13 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from './AuthContext';
-
-// Import JSON data as initial seed
-import productsData from '../data/products.json';
-import categoriesData from '../data/categories.json';
-import sellersData from '../data/sellers.json';
 import { useNotif } from './NotifContext';
-
+import productsData from '@/data/products.json';
+import categoriesData from '@/data/categories.json';
+import sellersData from '@/data/sellers.json';
+import { ChartDataPoint, StatProductType } from '@/constants/type';
 
 // Define data types / interfaces for type safety
 export interface Product {
@@ -44,6 +42,7 @@ interface DataContextType {
   addProduct: (product: Omit<Product, 'id' | 'createdBy' | 'createdAt'>) => void;
   updateProduct: (id: string, product: Omit<Product, 'id' | 'createdBy' | 'createdAt'>) => void;
   deleteProduct: (id: string) => void;
+  getStatProducts: ()=> StatProductType
   getUserProducts: () => Product[];
 }
 
@@ -163,6 +162,61 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     return products.filter(p => p.createdBy === user.id);
   };
 
+  const getStatProducts = (): StatProductType => {
+    const userProducts = getUserProducts();
+    const totalProducts = userProducts.length;
+    const totalValue = userProducts.reduce((sum, product) => sum + (product.price * product.stock), 0);
+    const totalStock = userProducts.reduce((sum, product) => sum + product.stock, 0);
+    const averagePrice = totalStock > 0 ? totalValue / totalStock : 0;
+    const highestPriced = userProducts.length > 0 ? Math.max(...userProducts.map(p => p.price)) : 0;
+    const lowestPriced = userProducts.length > 0 ? Math.min(...userProducts.map(p => p.price)) : 0;
+    const averageStock = totalProducts > 0 ? totalStock / totalProducts : 0;
+  
+    // Category distribution: Count products per category
+    const categoryData: ChartDataPoint[] = categories.map(category => ({
+      label: category.name,
+      value: userProducts.filter(p => p.category === category.name).length,
+      color: undefined
+    })).filter(item => item.value > 0);
+
+    // Seller distribution: Count products per category
+    const sellerData: ChartDataPoint[] = sellers.map(seller => ({
+      label: seller.name,
+      value: userProducts.filter(p => p.seller === seller.name).length,
+      color: undefined
+    })).filter(item => item.value > 0);    
+  
+    // Price range distribution: Group products by price ranges
+    const priceRanges = [
+      { label: '$0-$100', min: 0, max: 100 },
+      { label: '$100-$500', min: 100, max: 500 },
+      { label: '$500-$1000', min: 500, max: 1000 },
+      { label: '$1000+', min: 1000, max: Infinity }
+    ];
+  
+    const priceRangeData: ChartDataPoint[] = priceRanges.map(range => ({
+      label: range.label,
+      value: userProducts.filter(p => p.price >= range.min && p.price < range.max).length,
+      color: undefined
+    })).filter(item => item.value > 0);
+  
+    // Stock distribution: Group products by stock levels
+    const stockRanges = [
+      { label: '1-10 items', min: 1, max: 10 },
+      { label: '11-50 items', min: 11, max: 50 },
+      { label: '51-100 items', min: 51, max: 100 },
+      { label: '100+ items', min: 101, max: Infinity }
+    ];
+  
+    const stockRangeData: ChartDataPoint[] = stockRanges.map(range => ({
+      label: range.label,
+      value: userProducts.filter(p => p.stock >= range.min && p.stock <= range.max).length,
+      color: undefined
+    })).filter(item => item.value > 0);
+
+    return {totalProducts, totalValue, totalStock, averagePrice, highestPriced, lowestPriced, averageStock, priceRangeData, stockRangeData, categoryData, sellerData }
+  }
+
   return (
     <DataContext.Provider value={{
       products,
@@ -173,6 +227,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       deleteProduct,
       addCategory,
       addSeller,
+      getStatProducts,
       getUserProducts
     }}>
       {children}

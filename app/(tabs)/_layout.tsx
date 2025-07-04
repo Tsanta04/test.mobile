@@ -1,3 +1,5 @@
+// TabLayout: Main tab navigator for authenticated users, with notification badge and profile tab
+// Handles redirect if user is not authenticated
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotif } from '@/contexts/NotifContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -6,11 +8,13 @@ import { Chrome as Home, Bell, User } from 'lucide-react-native';
 import { View, Text, StyleSheet } from 'react-native';
 
 export default function TabLayout() {
+  // Get authentication, notification, and theme context
   const { user, isLoading } = useAuth();
   const { notifications } = useNotif();  
   const { colors } = useTheme();
 
   if (isLoading) {
+    // Optionally show a loading indicator here
     return null;
   }
 
@@ -18,6 +22,7 @@ export default function TabLayout() {
   if (!user) {
     return <Redirect href="/(auth)/login" />;
   }
+  // Count unread notifications for the current user
   const unreadNotifications = notifications.filter(n => n.userId === user.id && !n.read).length;
   
   // Render the tab navigator for authenticated users
@@ -49,7 +54,7 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Notifications tab */}
+      {/* Notifications tab with badge for unread notifications */}
       <Tabs.Screen
         name="notifications"
         options={{

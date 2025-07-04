@@ -6,12 +6,19 @@ import { ColorType } from '@/constants/type';
 
 // Props for the select button, including label, value, placeholder, and error handling
 interface LabeledSelectButtonProps {
+  // Label for the select field
   label: string;
+  // Current value
   value: string;
+  // Placeholder text
   placeholder?: string;
+  // Function to call when button is pressed
   onPress: () => void;
+  // Error message (if any)
   error?: string;
+  // Theme colors
   colors: ColorType;
+  // Optional icon to display
   icon?: React.ReactNode;
 }
 

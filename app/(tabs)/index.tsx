@@ -19,10 +19,13 @@ import FilterPanel from '@/components/ProductList/FilterPanels';
 import PaginationControls from '@/components/ProductList/Pagination';
 import SelectionModal from '@/components/SelectionModal';
 
+// ProductsScreen: Displays a paginated, filterable list of products with search, category, seller, and price filters
+
 // Number of items per page for pagination
 const ITEMS_PER_PAGE = 10;
 
 export default function ProductsScreen() {
+  // Get products, categories, sellers, and theme from context
   const { products, categories, sellers } = useData();
   const { colors, theme, toggleTheme } = useTheme();
 
@@ -38,17 +41,20 @@ export default function ProductsScreen() {
   const [currentPage, setCurrentPage] = useState(1);
   const [refreshing, setRefreshing] = useState(false);
 
-
   /**
    * Filter products based on search, category, seller, and price range.
    * useMemo optimizes re-calculation only when dependencies change.
    */
   const filteredProducts = useMemo(() => {
     let filtered = products.filter(product => {
+      // Check if product matches search query
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            product.description.toLowerCase().includes(searchQuery.toLowerCase());
+      // Check if product matches selected category
       const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+      // Check if product matches selected seller
       const matchesSeller = selectedSeller === 'All' || product.seller === selectedSeller;
+      // Check if product matches price range
       let matchesPrice = true;
       if (priceRange.min) {
         matchesPrice = matchesPrice && product.price >= parseFloat(priceRange.min);
@@ -56,13 +62,10 @@ export default function ProductsScreen() {
       if (priceRange.max) {
         matchesPrice = matchesPrice && product.price <= parseFloat(priceRange.max);
       }
-
       return matchesSearch && matchesCategory && matchesSeller && matchesPrice;
     });
-
     return filtered;
   }, [products, searchQuery, selectedCategory, selectedSeller, priceRange]);
-
 
   /**
    * Paginate the filtered products.
@@ -72,10 +75,8 @@ export default function ProductsScreen() {
     return filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredProducts, currentPage]);
 
-
   // Total number of pages for pagination
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-
 
   /**
    * Refresh handler (e.g. pull-to-refresh)
@@ -84,7 +85,6 @@ export default function ProductsScreen() {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 1000);
   };
-
 
   /**
    * Reset all filters to default values
@@ -96,7 +96,6 @@ export default function ProductsScreen() {
     setPriceRange({ min: '', max: '' });
     setCurrentPage(1);
   };
-
 
   /**
    * Define the styles (using dynamic theme colors)
@@ -192,7 +191,6 @@ export default function ProductsScreen() {
       marginTop: 8,
     }
   });
-
 
   /**
    * Render a single product card

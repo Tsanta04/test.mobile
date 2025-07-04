@@ -11,27 +11,32 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/contexts/AuthContext';
-import { useData } from '@/contexts/DataContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { router } from 'expo-router';
-import { User, Mail, Package, Settings, LogOut, CreditCard as Edit3, Save, X, Moon, Sun, DollarSign, TrendingUp, ShoppingCart, ChartBar as BarChart3 } from 'lucide-react-native';
+import { Settings, LogOut, CreditCard as Edit3, Moon, Sun, ChartBar as BarChart3 } from 'lucide-react-native';
 import Header from '@/components/Header';
 import ButtonForm from '@/components/Form/ButtonForm';
 import EditProfileForm from '@/components/Profil/EditProfil';
 import { useNotif } from '@/contexts/NotifContext';
+import OverviewStatisticsSection from '@/components/Analytic/OverviewStatistics';
+import { useData } from '@/contexts/DataContext';
+import { router } from 'expo-router';
 
-const { width } = Dimensions.get('window');
-
+// ProfileScreen: Displays and allows editing of the user's profile, with logout and theme toggle functionality
 export default function ProfileScreen() {
+  // Get user, logout, and updateProfile from context
   const { user, logout, updateProfile } = useAuth();
   const { addNotification } = useNotif();
+  const {getStatProducts} = useData();
+  const { totalProducts, totalValue, totalStock, averagePrice, highestPriced, lowestPriced, averageStock } = getStatProducts();
   const { colors, theme, toggleTheme } = useTheme();
   
+  // State for editing mode, form fields, and loading
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(user?.name || '');
   const [editEmail, setEditEmail] = useState(user?.email || '');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Save profile changes with validation and notification
   const saveProfile = async() =>{
     if (!editName.trim() || !editEmail.trim()) {
       Alert.alert('Error', 'Please fill in all fields');
@@ -60,6 +65,7 @@ export default function ProfileScreen() {
     }    
   }
 
+  // Confirm before saving profile changes
   const handleSaveProfile = async () => {
     console.log("Save Profile...");
     Alert.alert(
@@ -68,7 +74,7 @@ export default function ProfileScreen() {
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Delete',
+          text: 'Edit',
           style: 'destructive',
           onPress: saveProfile,
         },
@@ -76,12 +82,14 @@ export default function ProfileScreen() {
     );    
   };
 
+  // Cancel editing and reset form fields
   const handleCancelEdit = () => {
     setIsEditing(false);
     setEditName(user?.name || '');
     setEditEmail(user?.email || '');
   };
 
+  // Confirm before logging out
   const handleLogout = () => {
     Alert.alert(
       'Logout',
@@ -92,6 +100,10 @@ export default function ProfileScreen() {
       ]
     );
   };
+
+  const handleStatDetail = () => {
+    router.push('/analytics');
+  }
 
   if (!user) {
     return null;
@@ -175,6 +187,7 @@ export default function ProfileScreen() {
       borderWidth: 1,
       borderColor: colors.border,
       overflow: 'hidden',
+      marginTop:24,
       marginBottom: 24,
       shadowColor: '#000',
       shadowOpacity: 0.05,
@@ -259,7 +272,22 @@ export default function ProfileScreen() {
             )}
           </View>
         </View>
-
+        <OverviewStatisticsSection
+          colors={colors}
+          totalProducts={totalProducts}
+          totalStock={totalStock}
+          totalValue={totalValue}
+          averagePrice={averagePrice}
+          lowestPriced={lowestPriced}
+          highestPriced={highestPriced}
+          averageStock={averageStock}
+        />
+        <ButtonForm
+          onPress={handleStatDetail}
+          text="See more details"
+          colors={[colors.primary, colors.secondary]}
+          icon={<Edit3 size={20} color="#000" />}
+        />        
         <View style={styles.settingsCard}>
           <TouchableOpacity style={styles.settingsItem}>
             <Settings size={18} color={colors.textSecondary} style={styles.settingsIcon} />

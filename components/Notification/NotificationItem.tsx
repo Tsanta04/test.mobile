@@ -9,6 +9,7 @@ interface Notification {
   read: boolean;
 }
 
+// NotificationItem: Displays a single notification with icon, message, time, and read/unread state
 interface NotificationItemProps {
   notification: Notification;
   onPress: () => void;
@@ -29,6 +30,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   style,
 }) => {
 
+    // Styles for the notification item and its elements
     const styles = StyleSheet.create({
         notificationItem: {
             flexDirection: 'row',
@@ -69,6 +71,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     
 
   return (
+    // Touchable notification item with icon, message, time, and unread dot
     <TouchableOpacity
       style={[
         styles.notificationItem,
