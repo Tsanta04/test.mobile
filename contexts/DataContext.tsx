@@ -6,6 +6,7 @@ import { useAuth } from './AuthContext';
 import productsData from '../data/products.json';
 import categoriesData from '../data/categories.json';
 import sellersData from '../data/sellers.json';
+import { useNotif } from './NotifContext';
 
 
 // Define data types / interfaces for type safety
@@ -33,22 +34,11 @@ export interface Seller {
   name: string;
 }
 
-export interface Notification {
-  id: string;
-  userId: string;
-  message: string;
-  type: 'product_added' | 'product_updated' | 'product_deleted' | 'profile_updated';
-  timestamp: string;
-  read: boolean;
-}
-
-
 // Context interface describing all available methods and data
 interface DataContextType {
   products: Product[];
   categories: Category[];
   sellers: Seller[];
-  notifications: Notification[];
   addCategory: (name: string) => void;
   addSeller: (name: string) => void;  
   addProduct: (product: Omit<Product, 'id' | 'createdBy' | 'createdAt'>) => void;
@@ -64,12 +54,12 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 // DataProvider component to wrap app and provide state
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const { addNotification } = useNotif();
 
   // States for products, categories, sellers, notifications
   const [products, setProducts] = useState<Product[]>(productsData as Product[]);
   const [categories, setCategories] = useState<Category[]>(categoriesData as Category[]);
   const [sellers, setSellers] = useState<Seller[]>(sellersData as Seller[]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   // Load persisted data from AsyncStorage on mount
   useEffect(() => {
@@ -79,17 +69,15 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   // Function to load data from AsyncStorage
   const loadData = async () => {
     try {
-      const [storedProducts, storedCategories, storedSellers, notificationsData] = await Promise.all([
+      const [storedProducts, storedCategories, storedSellers ] = await Promise.all([
         AsyncStorage.getItem('products'),
         AsyncStorage.getItem('categories'),
         AsyncStorage.getItem('sellers'),
-        AsyncStorage.getItem('notifications')
       ]);
 
       if (storedProducts) setProducts(JSON.parse(storedProducts));
       if (storedCategories) setCategories(JSON.parse(storedCategories));
       if (storedSellers) setSellers(JSON.parse(storedSellers));
-      if (notificationsData) setNotifications(JSON.parse(notificationsData));
     } catch (error) {
       console.error('Error loading data:', error);
     }
@@ -118,7 +106,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const updatedProducts = [...products, newProduct];
     setProducts(updatedProducts);
     saveData('products', updatedProducts);
-
+    addNotification(`Product "${newProduct.name}" has been added`, 'product_added');
   };
 
   // Update existing product by ID
@@ -130,7 +118,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     );
     setProducts(updatedProducts);
     saveData('products', updatedProducts);
-
+    addNotification(`Product "${productData.name}" has been updated`, 'product_updated');
   };
 
   // Delete product by ID
@@ -141,7 +129,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const updatedProducts = products.filter(p => p.id !== id);
     setProducts(updatedProducts);
     saveData('products', updatedProducts);
-
+    addNotification(`Product "${product.name}" has been deleted`, 'product_deleted');
   };
 
   // Add new category  
@@ -153,6 +141,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const updatedCategories = [...categories, newCategory];
     setCategories(updatedCategories);
     saveData('categories', updatedCategories);
+    addNotification(`Category "${name}" has been added`, 'category_added');
   };
 
   // Add new seller  
@@ -164,6 +153,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const updatedSellers = [...sellers, newSeller];
     setSellers(updatedSellers);
     saveData('sellers', updatedSellers);
+    addNotification(`Seller "${name}" has been added`, 'seller_added');    
   };
 
 
@@ -178,7 +168,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       products,
       categories,
       sellers,
-      notifications,
       addProduct,
       updateProduct,
       deleteProduct,

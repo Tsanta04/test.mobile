@@ -12,9 +12,9 @@ import { useData } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Bell, Package, CreditCard as Edit, Trash2, User, Check, CheckCheck, Moon, Sun } from 'lucide-react-native';
-import { Notification } from '@/contexts/DataContext';
 import Header from '@/components/Header';
 import NotificationItem from '@/components/Notification/NotificationItem';
+import { Notification, useNotif } from '@/contexts/NotifContext';
 
 const getNotificationIcon = (type: Notification['type']) => {
   switch (type) {
@@ -22,7 +22,11 @@ const getNotificationIcon = (type: Notification['type']) => {
       return Package;
     case 'product_updated':
       return Edit;
-    case 'product_deleted':
+    case 'category_added':
+      return Package;
+    case 'seller_added':
+      return Package;
+    case 'product_deleted':      
       return Trash2;
     case 'profile_updated':
       return User;
@@ -34,6 +38,10 @@ const getNotificationIcon = (type: Notification['type']) => {
 const getNotificationColor = (type: Notification['type'], colors: any) => {
   switch (type) {
     case 'product_added':
+      return colors.success;
+    case 'category_added':
+      return colors.success;      
+    case 'seller_added':
       return colors.success;
     case 'product_updated':
       return colors.warning;
@@ -47,7 +55,7 @@ const getNotificationColor = (type: Notification['type'], colors: any) => {
 };
 
 export default function NotificationsScreen() {
-  const { notifications } = useData();
+  const { notifications, markNotificationAsRead, markAllNotificationsAsRead } = useNotif();
   const { user } = useAuth();
   const { colors, theme, toggleTheme } = useTheme();
   const [refreshing, setRefreshing] = React.useState(false);
@@ -83,7 +91,7 @@ export default function NotificationsScreen() {
     return (
       <NotificationItem
         notification={notification}
-        onPress={() => console.log("Hello")}
+        onPress={() => markNotificationAsRead(notification.id)}
         IconComponent={IconComponent}
         iconColor={iconColor}
         colors={colors}
@@ -178,8 +186,7 @@ export default function NotificationsScreen() {
             {unreadCount > 0 && (
               <TouchableOpacity
                 style={styles.markAllButton}
-                onPress={()=>{console.log("Clicked");
-                }}
+                onPress={markAllNotificationsAsRead}
               >
                 <LinearGradient
                   colors={[colors.primary, colors.secondary]}

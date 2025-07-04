@@ -1,4 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
+import { useNotif } from '@/contexts/NotifContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Redirect, Tabs } from 'expo-router';
 import { Chrome as Home, Bell, User } from 'lucide-react-native';
@@ -6,6 +7,7 @@ import { View, Text, StyleSheet } from 'react-native';
 
 export default function TabLayout() {
   const { user, isLoading } = useAuth();
+  const { notifications } = useNotif();  
   const { colors } = useTheme();
 
   if (isLoading) {
@@ -16,7 +18,8 @@ export default function TabLayout() {
   if (!user) {
     return <Redirect href="/(auth)/login" />;
   }
-
+  const unreadNotifications = notifications.filter(n => n.userId === user.id && !n.read).length;
+  
   // Render the tab navigator for authenticated users
   return (
     <Tabs
@@ -54,6 +57,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <View style={styles.notificationIcon}>
               <Bell size={size} color={color} />
+              {unreadNotifications > 0 && (
+                <View style={[styles.badge, { backgroundColor: colors.error }]}>
+                  <Text style={styles.badgeText}>
+                    {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                  </Text>
+                </View>
+              )}              
             </View>
           ),
         }}
