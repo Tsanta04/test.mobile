@@ -342,6 +342,7 @@ export default function ProductDetailScreen() {
    * Only allows product owners to edit their products
    */
   const handleEdit = () => {
+    // Only allow product owners to edit their products: error management
     if (!isOwner) {
       Alert.alert('Error', 'You can only edit products you created.');
       return;
@@ -355,6 +356,7 @@ export default function ProductDetailScreen() {
    * Only allows product owners to delete their products
    */
   const handleDelete = () => {
+    // Only allow product owners to delete their products: error management
     if (!isOwner) {
       Alert.alert('Error', 'You can only delete products you created.');
       return;
