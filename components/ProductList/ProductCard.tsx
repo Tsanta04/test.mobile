@@ -66,7 +66,7 @@ export default function ProductCard({ product, viewMode }: ProductCardProps) {
       Alert.alert('Error', 'You can only edit products you created.');
       return;
     }
-    router.push(`/product/edit/${product.id}`);
+    router.push(`/product/edit/${product.id}` as any);
   };
 
   /**
@@ -204,12 +204,13 @@ export default function ProductCard({ product, viewMode }: ProductCardProps) {
   if (viewMode === 'list') {
     return (
       <View style={styles.listCard}>
-        <TouchableOpacity onPress={() => router.push(`/product/${product.id}`)}>
+        {/* Action button to view product details */}
+        <TouchableOpacity onPress={() => router.push(`/product/${product.id}` as any)}>
           <Image source={{ uri: product.image }} style={styles.listImage} />
         </TouchableOpacity>
         
         <View style={styles.listContent}>
-          <TouchableOpacity onPress={() => router.push(`/product/${product.id}`)}>
+          <TouchableOpacity onPress={() => router.push(`/product/${product.id}` as any)}>
             <Text style={styles.productName} numberOfLines={1}>
               {product.name}
             </Text>
@@ -224,24 +225,32 @@ export default function ProductCard({ product, viewMode }: ProductCardProps) {
         </View>
         
         <View style={styles.listActions}>
+          {/* Action view detail */}
           <TouchableOpacity
             style={[styles.actionButton, styles.viewButton]}
-            onPress={() => router.push(`/product/${product.id}`)}
+            onPress={() => router.push(`/product/${product.id}` as any)}
           >
             <Eye size={16} color="#000" />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.actionButton, styles.editButton]}
-            onPress={handleEditProduct}
-          >
-            <Edit3 size={16} color="#000" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.actionButton, styles.deleteButton]}
-            onPress={handleDeleteProduct}
-          >
-            <Trash2 size={16} color="#FFF" />
-          </TouchableOpacity>
+          {/* Action button to edit product : Only the owner can edit */}
+          {
+            isOwner && (
+              <>
+              <TouchableOpacity
+                style={[styles.actionButton, styles.editButton]}
+                onPress={handleEditProduct}
+              >
+                <Edit3 size={16} color="#000" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.actionButton, styles.deleteButton]}
+                onPress={handleDeleteProduct}
+              >
+                <Trash2 size={16} color="#FFF" />
+              </TouchableOpacity>              
+              </>
+            )
+          }
         </View>
       </View>
     );
@@ -253,7 +262,8 @@ export default function ProductCard({ product, viewMode }: ProductCardProps) {
    */
   return (
     <View style={styles.gridCard}>
-      <TouchableOpacity onPress={() => router.push(`/product/${product.id}`)}>
+      {/* Action button to view product details */}
+      <TouchableOpacity onPress={() => router.push(`/product/${product.id}` as any)}>
         <Image source={{ uri: product.image }} style={styles.gridImage} />
         <View style={styles.gridContent}>
           <Text style={styles.productName} numberOfLines={2}>
@@ -274,21 +284,25 @@ export default function ProductCard({ product, viewMode }: ProductCardProps) {
           </View>
         </View>
       </TouchableOpacity>
-      
-      <View style={styles.gridActions}>
-        <TouchableOpacity
-          style={[styles.actionButton, styles.editButton]}
-          onPress={handleEditProduct}
-        >
-          <Edit3 size={16} color="#000" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.actionButton, styles.deleteButton]}
-          onPress={handleDeleteProduct}
-        >
-          <Trash2 size={16} color="#FFF" />
-        </TouchableOpacity>
-      </View>
+      {/* Action button to edit product : Only the owner can edit */}
+      {
+        isOwner && (      
+          <View style={styles.gridActions}>
+            <TouchableOpacity
+              style={[styles.actionButton, styles.editButton]}
+              onPress={handleEditProduct}
+            >
+              <Edit3 size={16} color="#000" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.actionButton, styles.deleteButton]}
+              onPress={handleDeleteProduct}
+            >
+              <Trash2 size={16} color="#FFF" />
+            </TouchableOpacity>
+          </View>
+        )
+      }
     </View>
   );
 }

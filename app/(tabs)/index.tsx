@@ -11,13 +11,13 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useData } from '@/contexts/DataContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { router } from 'expo-router';
+import { router, Link } from 'expo-router';
 import { Search, Plus, Filter, Grid2x2 as Grid, List, X } from 'lucide-react-native';
-import ProductCard from '@/components/ProductCard';
-import SelectionModal from '@/components/Tools/SelectionModal';
-import PaginationControls from '@/components/Tools/Pagination';
-import FilterPanel from '@/components/Tools/FilterPanels';
-import Header from '@/components/Tools/Header';
+import ProductCard from '@/components/ProductList/ProductCard';
+import Header from '@/components/Header';
+import FilterPanel from '@/components/ProductList/FilterPanels';
+import PaginationControls from '@/components/ProductList/Pagination';
+import SelectionModal from '@/components/SelectionModal';
 
 // Number of items per page for pagination
 const ITEMS_PER_PAGE = 10;
@@ -272,7 +272,7 @@ export default function ProductsScreen() {
 
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => router.push('/product/add')}
+          onPress={() => router.push('/product/add' as any)}
         >
           <LinearGradient
             colors={[colors.primary, colors.secondary]}
@@ -322,7 +322,7 @@ export default function ProductsScreen() {
       />
 
       {/* Category selection modal */}
-      <SelectionModal 
+      <SelectionModal
         visible={showCategoryModal} 
         title='Select Category' 
         data={categories} 

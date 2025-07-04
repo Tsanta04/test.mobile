@@ -18,7 +18,7 @@ export default function WelcomeScreen() {
 
   // Handler to navigate to the login page
   const handleGetStarted = () => {
-    router.replace('/(auth)/login');
+    router.replace('/(auth)/login' as any);
   };
 
   /**
