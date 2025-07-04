@@ -62,7 +62,7 @@ const SelectionModal: React.FC<SelectionModalProps> = ({
   enableToAdd
 }) => {
 
-  const [inputMode, setInputMode] = useState(!enableToAdd);
+  const [inputMode, setInputMode] = useState(false);
   const [newName, setNewName] = useState('');
 
   // Define styles for the modal using the theme colors

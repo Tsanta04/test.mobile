@@ -10,7 +10,7 @@ import { Alert, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 export default function AddProductScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { products, updateProduct } = useData();
+  const { products, updateProduct, addCategory, addSeller } = useData();
   const [ isLoading, setIsLoading ] = useState(false);
   const { colors } = useTheme();
   const { user } = useAuth();
@@ -71,6 +71,7 @@ export default function AddProductScreen() {
   const handleAddCategory = (newCategoryName: string) => {
     if (newCategoryName.trim()) {
       console.log("Adding category: ", newCategoryName);      
+      addCategory(newCategoryName.trim());      
       setFormData({ ...formData, category: newCategoryName });
     }
   };
@@ -78,6 +79,7 @@ export default function AddProductScreen() {
   const handleAddSeller = (newSellerName: string) => {
     if (newSellerName.trim()) {
       console.log("Adding seller: ", newSellerName);
+      addSeller(newSellerName.trim());
       setFormData({ ...formData, seller: newSellerName });
     }
   };

@@ -7,7 +7,7 @@ import { useData } from '@/contexts/DataContext';
 
 export default function AddProductScreen() {
   const [isLoading, setIsLoading] = useState(false);
-  const {addProduct} = useData();
+  const {addProduct, addCategory, addSeller} = useData();
   const [formData, setFormData] = useState<ProductType>({
     name: '',
     description: '',
@@ -48,6 +48,7 @@ export default function AddProductScreen() {
   const handleAddCategory = (newCategoryName: string) => {
     if (newCategoryName.trim()) {
       console.log("Adding category: ", newCategoryName);      
+      addCategory(newCategoryName.trim());      
       setFormData({ ...formData, category: newCategoryName });
     }
   };
@@ -55,10 +56,10 @@ export default function AddProductScreen() {
   const handleAddSeller = (newSellerName: string) => {
     if (newSellerName.trim()) {
       console.log("Adding seller: ", newSellerName);
+      addSeller(newSellerName.trim());
       setFormData({ ...formData, seller: newSellerName });
     }
   };
-
   return (
     <ProductForm 
       handleSave={handleSave} 
