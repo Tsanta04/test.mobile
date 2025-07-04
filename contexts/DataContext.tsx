@@ -49,6 +49,8 @@ interface DataContextType {
   categories: Category[];
   sellers: Seller[];
   notifications: Notification[];
+  addCategory: (name: string) => void;
+  addSeller: (name: string) => void;  
   addProduct: (product: Omit<Product, 'id' | 'createdBy' | 'createdAt'>) => void;
   updateProduct: (id: string, product: Omit<Product, 'id' | 'createdBy' | 'createdAt'>) => void;
   deleteProduct: (id: string) => void;
@@ -142,6 +144,29 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   };
 
+  // Add new category  
+  const addCategory = (name: string) => {
+    const newCategory: Category = {
+      id: Date.now().toString(),
+      name
+    };
+    const updatedCategories = [...categories, newCategory];
+    setCategories(updatedCategories);
+    saveData('categories', updatedCategories);
+  };
+
+  // Add new seller  
+  const addSeller = (name: string) => {
+    const newSeller: Seller = {
+      id: Date.now().toString(),
+      name
+    };
+    const updatedSellers = [...sellers, newSeller];
+    setSellers(updatedSellers);
+    saveData('sellers', updatedSellers);
+  };
+
+
   // Get all products created by the current user
   const getUserProducts = () => {
     if (!user) return [];
@@ -157,6 +182,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       addProduct,
       updateProduct,
       deleteProduct,
+      addCategory,
+      addSeller,
       getUserProducts
     }}>
       {children}
