@@ -244,7 +244,7 @@ export default function ProductForm(
       return;
     }  
     const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: 'images',
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.7,
@@ -261,7 +261,7 @@ export default function ProductForm(
     setShowImageOptions(false);
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: 'images',
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
@@ -301,8 +301,8 @@ export default function ProductForm(
         <TouchableOpacity
           style={styles.saveButton}
           onPress={()=>{
-            if(validateForm())return;
-            handleSave();
+            if(!validateForm())return;
+            else handleSave();
           }}
           disabled={isLoading}
         >

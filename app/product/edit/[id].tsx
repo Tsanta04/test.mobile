@@ -6,11 +6,12 @@ import { useData } from '@/contexts/DataContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { View } from 'lucide-react-native';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 export default function AddProductScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { products } = useData();
+  const { products, updateProduct } = useData();
+  const [ isLoading, setIsLoading ] = useState(false);
   const { colors } = useTheme();
   const { user } = useAuth();
 
@@ -26,8 +27,45 @@ export default function AddProductScreen() {
 
   const product = products.find(p => p.id === id);
 
+  useEffect(() => {
+    if (product) {
+      setFormData({
+        name: product.name,
+        description: product.description,
+        price: product.price.toString(),
+        stock: product.stock.toString(),
+        category: product.category,
+        seller: product.seller,
+        image: product.image,
+      });
+    }
+  }, [product]);
+
   const handleUpdate = async () => {
     console.log("Form is valid: ", formData);
+    setIsLoading(true);
+    try {
+      updateProduct(id!, {
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock),
+        category:formData.category,
+        seller:formData.seller,
+        image:formData.image,
+        isActive: true,
+      });
+      Alert.alert(
+        'Success',
+        `Product "${formData.name}" has been updated successfully!`,
+        [{ text: 'OK', onPress: () => router.back() }]
+      );
+    } catch (error) {
+      console.log(error);      
+      Alert.alert('Error', 'Failed to update product. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAddCategory = (newCategoryName: string) => {
@@ -43,20 +81,6 @@ export default function AddProductScreen() {
       setFormData({ ...formData, seller: newSellerName });
     }
   };
-
-  useEffect(() => {
-    if (product) {
-      setFormData({
-        name: product.name,
-        description: product.description,
-        price: product.price.toString(),
-        stock: product.stock.toString(),
-        category: product.category,
-        seller: product.seller,
-        image: product.image,
-      });
-    }
-  }, [product]);
 
   const styles = StyleSheet.create({
     container: {
