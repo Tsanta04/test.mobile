@@ -17,14 +17,31 @@ import { router } from 'expo-router';
 import { User, Mail, Package, Settings, LogOut, CreditCard as Edit3, Save, X, Moon, Sun, DollarSign, TrendingUp, ShoppingCart, ChartBar as BarChart3 } from 'lucide-react-native';
 import Header from '@/components/Header';
 import ButtonForm from '@/components/Form/ButtonForm';
+import EditProfileForm from '@/components/Profil/EditProfil';
+import { useNotif } from '@/contexts/NotifContext';
 
 const { width } = Dimensions.get('window');
 
 export default function ProfileScreen() {
   const { user, logout, updateProfile } = useAuth();
-  const { getUserProducts } = useData();
+  const { addNotification } = useNotif();
   const { colors, theme, toggleTheme } = useTheme();
   
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(user?.name || '');
+  const [editEmail, setEditEmail] = useState(user?.email || '');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSaveProfile = async () => {
+    console.log("Save Profile success");
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditName(user?.name || '');
+    setEditEmail(user?.email || '');
+  };
+
   const handleLogout = () => {
     Alert.alert(
       'Logout',
@@ -171,20 +188,35 @@ export default function ProfileScreen() {
           </View>
 
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>{user.name}</Text>
-            <Text style={styles.profileEmail}>{user.email}</Text>
-            <TouchableOpacity
-              style={styles.startEditButton}
-              onPress={() => console.log("Edit true")}
-            >
-              <LinearGradient
-                colors={[colors.primary, colors.secondary]}
-                style={styles.startEditGradient}
-              >
-                <Edit3 size={16} color="#000" />
-                <Text style={styles.startEditButtonText}>Edit Profile</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+            {isEditing ? (
+              <EditProfileForm
+                editName={editName}
+                setEditName={setEditName}
+                editEmail={editEmail}
+                setEditEmail={setEditEmail}
+                handleCancelEdit={handleCancelEdit}
+                handleSaveProfile={handleSaveProfile}
+                isLoading={isLoading}
+                colors={colors}
+              />
+              ):(
+              <>
+                <Text style={styles.profileName}>{user.name}</Text>
+                <Text style={styles.profileEmail}>{user.email}</Text>
+                <TouchableOpacity
+                  style={styles.startEditButton}
+                  onPress={() => setIsEditing(true)}
+                >
+                  <LinearGradient
+                    colors={[colors.primary, colors.secondary]}
+                    style={styles.startEditGradient}
+                  >
+                    <Edit3 size={16} color="#000" />
+                    <Text style={styles.startEditButtonText}>Edit Profile</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </>
+            )}
           </View>
         </View>
 
