@@ -32,8 +32,48 @@ export default function ProfileScreen() {
   const [editEmail, setEditEmail] = useState(user?.email || '');
   const [isLoading, setIsLoading] = useState(false);
 
+  const saveProfile = async() =>{
+    if (!editName.trim() || !editEmail.trim()) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(editEmail)) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const success = await updateProfile(editName.trim(), editEmail);
+      if (success) {
+        setIsEditing(false);
+        addNotification('Profile updated successfully', 'profile_updated');
+        Alert.alert('Success', 'Profile updated successfully');
+      } else {
+        Alert.alert('Error', 'This email is already in use');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update profile');
+    } finally {
+      setIsLoading(false);
+    }    
+  }
+
   const handleSaveProfile = async () => {
-    console.log("Save Profile success");
+    console.log("Save Profile...");
+    Alert.alert(
+      'Editing profile',
+      `Are you sure to edit your profile ?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: saveProfile,
+        },
+      ]
+    );    
   };
 
   const handleCancelEdit = () => {
