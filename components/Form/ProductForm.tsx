@@ -281,6 +281,18 @@ export default function ProductForm(
     setShowImageModal(true);
   };
 
+  const save = ()=>{
+    if(!validateForm())return;    
+    Alert.alert(
+      title,
+        'Are you sure to pursue this action?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Confirm', style: 'default', onPress: () => {handleSave()} },
+      ]
+    );
+  }
+
   // Main render: form layout, modals, and image options
   return (
     <KeyboardAvoidingView
@@ -300,10 +312,7 @@ export default function ProductForm(
 
         <TouchableOpacity
           style={styles.saveButton}
-          onPress={()=>{
-            if(!validateForm())return;
-            else handleSave();
-          }}
+          onPress={save}
           disabled={isLoading}
         >
           <LinearGradient
