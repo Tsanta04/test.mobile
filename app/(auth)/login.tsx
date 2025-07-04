@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
@@ -15,6 +14,8 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { router } from 'expo-router';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import InputForm from '@/components/Form/InputForm';
+import ButtonForm from '@/components/Form/ButtonForm';
 
 export default function LoginScreen() {
   // Access the current theme colors (light/dark)
@@ -109,62 +110,11 @@ export default function LoginScreen() {
     form: {
       gap: 20,
     },
-    inputContainer: {
-      gap: 8,
-    },
-    label: {
-      fontSize: 16,
-      fontFamily: 'Inter-Medium',
-      color: colors.text,
-    },
-    inputWrapper: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: colors.surface,
-      borderRadius: 12,
-      borderWidth: 1,
-      borderColor: colors.border,
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-    },
-    inputWrapperError: {
-      borderColor: colors.error,
-    },
     icon: {
       marginRight: 12,
     },
-    input: {
-      flex: 1,
-      fontSize: 16,
-      fontFamily: 'Inter-Regular',
-      color: colors.text,
-    },
     eyeIcon: {
       marginLeft: 12,
-    },
-    errorText: {
-      fontSize: 14,
-      fontFamily: 'Inter-Regular',
-      color: colors.error,
-      marginTop: 4,
-    },
-    loginButton: {
-      marginTop: 8,
-      borderRadius: 12,
-      overflow: 'hidden',
-    },
-    loginGradient: {
-      paddingVertical: 16,
-      paddingHorizontal: 24,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    loginButtonText: {
-      fontSize: 18,
-      fontFamily: 'Inter-SemiBold',
-      color: '#000',
-      marginLeft: 8,
     },
     footer: {
       marginTop: 32,
@@ -230,69 +180,51 @@ export default function LoginScreen() {
           {/* Login form */}
           <View style={styles.form}>
             {/* Email input */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Email</Text>
-              <View style={[styles.inputWrapper, errors.email && styles.inputWrapperError]}>
-                <Mail size={20} color={colors.textSecondary} style={styles.icon} />
-                <TextInput
-                  style={styles.input}
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="Enter your email"
-                  placeholderTextColor={colors.textSecondary}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-              </View>
-              {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-            </View>
+            <InputForm
+              label="Email"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Enter your email"
+              error={errors.email}
+              colors={colors}
+              keyboardType="email-address"
+              icon={<Mail size={20} color={colors.textSecondary} style={styles.icon} />}
+              requiredSign={false}
+            />
 
-            {/* Password input with show/hide toggle */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Password</Text>
-              <View style={[styles.inputWrapper, errors.password && styles.inputWrapperError]}>
-                <Lock size={20} color={colors.textSecondary} style={styles.icon} />
-                <TextInput
-                  style={styles.input}
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="Enter your password"
-                  placeholderTextColor={colors.textSecondary}
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowPassword(!showPassword)}
-                  style={styles.eyeIcon}
-                >
+            <InputForm
+              label="Password"
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Enter your password"
+              error={errors.password}
+              colors={colors}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              icon={<Lock size={20} color={colors.textSecondary} style={styles.icon} />}
+              requiredSign={false}
+              rightElement={
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
                   {showPassword ? (
                     <EyeOff size={20} color={colors.textSecondary} />
                   ) : (
                     <Eye size={20} color={colors.textSecondary} />
                   )}
                 </TouchableOpacity>
-              </View>
-              {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-            </View>
+              }
+            />
 
             {/* Login button */}
-            <TouchableOpacity
-              style={styles.loginButton}
+            <ButtonForm
               onPress={handleLogin}
               disabled={isLoading}
-            >
-              <LinearGradient
-                colors={[colors.primary, colors.secondary]}
-                style={styles.loginGradient}
-              >
-                <LogIn size={20} color="#000" />
-                <Text style={styles.loginButtonText}>
-                  {isLoading ? 'Signing In...' : 'Sign In'}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
+              isLoading={isLoading}
+              loadingText="Signing In..."
+              text="Sign In"
+              colors={[colors.primary, colors.secondary]}
+              icon={<LogIn size={20} color="#000" />}
+            />
           </View>
 
           {/* Demo credentials section */}

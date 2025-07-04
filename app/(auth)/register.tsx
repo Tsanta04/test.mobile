@@ -15,6 +15,8 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { router } from 'expo-router';
 import { Eye, EyeOff, Mail, Lock, User, UserPlus, ArrowLeft } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import InputForm from '@/components/Form/InputForm';
+import ButtonForm from '@/components/Form/ButtonForm';
 
 // Registration screen component
 export default function RegisterScreen() {
@@ -165,35 +167,8 @@ export default function RegisterScreen() {
     form: {
       gap: 20,
     },
-    inputContainer: {
-      gap: 8,
-    },
-    label: {
-      fontSize: 16,
-      fontFamily: 'Inter-Medium',
-      color: colors.text,
-    },
-    inputWrapper: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: colors.surface,
-      borderRadius: 12,
-      borderWidth: 1,
-      borderColor: colors.border,
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-    },
-    inputWrapperError: {
-      borderColor: colors.error,
-    },
     icon: {
       marginRight: 12,
-    },
-    input: {
-      flex: 1,
-      fontSize: 16,
-      fontFamily: 'Inter-Regular',
-      color: colors.text,
     },
     eyeIcon: {
       marginLeft: 12,
@@ -203,24 +178,6 @@ export default function RegisterScreen() {
       fontFamily: 'Inter-Regular',
       color: colors.error,
       marginTop: 4,
-    },
-    registerButton: {
-      marginTop: 8,
-      borderRadius: 12,
-      overflow: 'hidden',
-    },
-    registerGradient: {
-      paddingVertical: 16,
-      paddingHorizontal: 24,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    registerButtonText: {
-      fontSize: 18,
-      fontFamily: 'Inter-SemiBold',
-      color: '#000',
-      marginLeft: 8,
     },
     footer: {
       marginTop: 32,
@@ -275,57 +232,46 @@ export default function RegisterScreen() {
           {/* Registration form */}
           <View style={styles.form}>
             {/* Full Name input */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Full Name</Text>
-              <View style={[styles.inputWrapper, errors.name && styles.inputWrapperError]}>
-                <User size={20} color={colors.textSecondary} style={styles.icon} />
-                <TextInput
-                  style={styles.input}
-                  value={name}
-                  onChangeText={setName}
-                  placeholder="Enter your full name"
-                  placeholderTextColor={colors.textSecondary}
-                  autoCapitalize="words"
-                  autoCorrect={false}
-                />
-              </View>
-              {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
-            </View>
+            <InputForm
+              label="Full Name"
+              value={name}
+              onChangeText={setName}
+              placeholder="Enter your full name"
+              error={errors.name}
+              colors={colors}
+              autoCapitalize="words"
+              autoCorrect={false}
+              requiredSign={false}
+              icon={<User size={20} color={colors.textSecondary} style={styles.icon} />}
+            />
 
-            {/* Email input */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Email</Text>
-              <View style={[styles.inputWrapper, errors.email && styles.inputWrapperError]}>
-                <Mail size={20} color={colors.textSecondary} style={styles.icon} />
-                <TextInput
-                  style={styles.input}
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="Enter your email"
-                  placeholderTextColor={colors.textSecondary}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-              </View>
-              {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-            </View>
+            <InputForm
+              label="Email"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Enter your email"
+              error={errors.email}
+              colors={colors}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              requiredSign={false}
+              icon={<Mail size={20} color={colors.textSecondary} style={styles.icon} />}
+            />
 
-            {/* Password input */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Password</Text>
-              <View style={[styles.inputWrapper, errors.password && styles.inputWrapperError]}>
-                <Lock size={20} color={colors.textSecondary} style={styles.icon} />
-                <TextInput
-                  style={styles.input}
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="Create a password"
-                  placeholderTextColor={colors.textSecondary}
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
+            <InputForm
+              label="Password"
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Create a password"
+              error={errors.password}
+              colors={colors}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              requiredSign={false}
+              icon={<Lock size={20} color={colors.textSecondary} style={styles.icon} />}
+              rightElement={
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
                   style={styles.eyeIcon}
@@ -336,25 +282,22 @@ export default function RegisterScreen() {
                     <Eye size={20} color={colors.textSecondary} />
                   )}
                 </TouchableOpacity>
-              </View>
-              {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-            </View>
+              }
+            />
 
-            {/* Confirm Password input */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Confirm Password</Text>
-              <View style={[styles.inputWrapper, errors.confirmPassword && styles.inputWrapperError]}>
-                <Lock size={20} color={colors.textSecondary} style={styles.icon} />
-                <TextInput
-                  style={styles.input}
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  placeholder="Confirm your password"
-                  placeholderTextColor={colors.textSecondary}
-                  secureTextEntry={!showConfirmPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
+            <InputForm
+              label="Confirm Password"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="Confirm your password"
+              error={errors.confirmPassword}
+              colors={colors}
+              secureTextEntry={!showConfirmPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              requiredSign={false}
+              icon={<Lock size={20} color={colors.textSecondary} style={styles.icon} />}
+              rightElement={
                 <TouchableOpacity
                   onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                   style={styles.eyeIcon}
@@ -365,26 +308,19 @@ export default function RegisterScreen() {
                     <Eye size={20} color={colors.textSecondary} />
                   )}
                 </TouchableOpacity>
-              </View>
-              {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
-            </View>
+              }
+            />
 
             {/* Submit button */}
-            <TouchableOpacity
-              style={styles.registerButton}
+            <ButtonForm
               onPress={handleRegister}
               disabled={isLoading}
-            >
-              <LinearGradient
-                colors={[colors.primary, colors.secondary]}
-                style={styles.registerGradient}
-              >
-                <UserPlus size={20} color="#000" />
-                <Text style={styles.registerButtonText}>
-                  {isLoading ? 'Creating Account...' : 'Create Account'}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
+              isLoading={isLoading}
+              loadingText="Creating Account..."
+              text="Create Account"
+              colors={[colors.primary, colors.secondary]}
+              icon={<UserPlus size={20} color="#000" />}
+            />
           </View>
 
           {/* Footer with link to Sign In */}

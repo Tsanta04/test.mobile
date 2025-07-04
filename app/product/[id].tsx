@@ -14,6 +14,7 @@ import { useData } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { ArrowLeft, CreditCard as Edit3, Trash2, Package, DollarSign, User as UserIcon, Tag, Calendar } from 'lucide-react-native';
+import ButtonForm from '@/components/Form/ButtonForm';
 
 /**
  * ProductDetailScreen - Displays detailed information about a specific product
@@ -485,26 +486,21 @@ export default function ProductDetailScreen() {
           {isOwner && (
             <View style={styles.ownerActions}>
               {/* Edit product button */}
-              <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-                <LinearGradient
-                  colors={[colors.primary, colors.secondary]}
-                  style={styles.editGradient}
-                >
-                  <Edit3 size={20} color="#000" />
-                  <Text style={styles.editButtonText}>Edit Product</Text>
-                </LinearGradient>
-              </TouchableOpacity>
+              <ButtonForm
+                onPress={handleEdit}
+                text="Edit Product"
+                colors={[colors.primary, colors.secondary]}
+                icon={<Edit3 size={20} color="#000" />}
+              />
 
               {/* Delete product button */}
-              <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-                <LinearGradient
-                  colors={[colors.error, '#DC2626']}
-                  style={styles.deleteGradient}
-                >
-                  <Trash2 size={20} color="#FFF" />
-                  <Text style={styles.deleteButtonText}>Delete Product</Text>
-                </LinearGradient>
-              </TouchableOpacity>
+              <ButtonForm
+                onPress={handleDelete}
+                text="Delete Product"
+                colors={[colors.error, '#FE4848']}
+                icon={<Trash2 size={20} color="#FFF" />}
+              />
+
             </View>
           )}
         </View>

@@ -326,6 +326,7 @@ export default function ProductsScreen() {
         visible={showCategoryModal} 
         title='Select Category' 
         data={categories} 
+        selected={selectedCategory}
         onSelect={(item) => {
           setSelectedCategory(item.name);
           setShowCategoryModal(false);
@@ -333,6 +334,7 @@ export default function ProductsScreen() {
         }}
         onClose={()=>{setShowCategoryModal(false)}}
         colors={colors}
+        enableToAdd={false}
       />
 
       {/* Seller selection modal */}
@@ -340,6 +342,7 @@ export default function ProductsScreen() {
         visible={showSellerModal} 
         title='Select Seller' 
         data={sellers} 
+        selected={selectedSeller}
         onSelect={(item) => {
           setSelectedSeller(item.name);
           setShowSellerModal(false);
@@ -347,6 +350,7 @@ export default function ProductsScreen() {
         }}
         onClose={()=>{setShowSellerModal(false)}}
         colors={colors}
+        enableToAdd={false}
       />
 
     </View>
