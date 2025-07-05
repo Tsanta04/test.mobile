@@ -207,12 +207,6 @@ export default function RegisterScreen() {
         style={styles.gradient}
       >
         {/* Back button to navigate to the previous screen */}
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <ArrowLeft size={20} color={colors.text} />
-        </TouchableOpacity>
 
         <ScrollView
           contentContainerStyle={styles.scrollContainer}

@@ -15,6 +15,7 @@ import { Bell, Package, CreditCard as Edit, Trash2, User, Check, CheckCheck, Moo
 import Header from '@/components/Header';
 import NotificationItem from '@/components/Notification/NotificationItem';
 import { Notification, useNotif } from '@/contexts/NotifContext';
+import { EmptyDataMessage } from '@/components/Common/EmptyDataMessage';
 
 // NotificationsScreen: Displays a list of notifications for the current user, with mark-as-read and mark-all-read functionality
 export default function NotificationsScreen() {
@@ -112,28 +113,9 @@ export default function NotificationsScreen() {
       flex: 1,
       paddingHorizontal: 20,
     },
-    emptyContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingVertical: 60,
-    },
     emptyIcon: {
       marginBottom: 16,
       opacity: 0.5,
-    },
-    emptyText: {
-      fontSize: 18,
-      fontFamily: 'Inter-SemiBold',
-      color: colors.textSecondary,
-      textAlign: 'center',
-      marginBottom: 8,
-    },
-    emptySubtext: {
-      fontSize: 14,
-      fontFamily: 'Inter-Regular',
-      color: colors.textSecondary,
-      textAlign: 'center',
     },
   });
 
@@ -171,14 +153,12 @@ export default function NotificationsScreen() {
       )}
 
       {userNotifications.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Bell size={64} color={colors.textSecondary} style={styles.emptyIcon} />
-          <Text style={styles.emptyText}>No notifications yet</Text>
-          <Text style={styles.emptySubtext}>
-            When you perform actions like adding or editing products,{'\n'}
-            you'll see notifications here.
-          </Text>
-        </View>
+        <EmptyDataMessage
+          message="No notifications yet"
+          subtext="When you perform actions like adding or editing products,you'll see notifications here."
+          icon = { <Bell size={64} color={colors.textSecondary} style={styles.emptyIcon} /> }
+          colors={colors}
+        />
       ) : (
         <FlatList
           data={userNotifications}

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLoading } from './LoadingContext';
 import usersData from '../data/users.json';                                   // Import local JSON data representing initial users
+import bcrypt from 'bcryptjs';
 
 // Define the User interface
 export interface User {
@@ -21,6 +22,15 @@ interface AuthContextType {
   changePassword: (email: string, newPassword: string) => Promise<boolean>;
   updateProfile: (name: string, email: string) => Promise<boolean>;
 }
+
+bcrypt.setRandomFallback((len) => {
+  const buf = [];
+  for (let i = 0; i < len; i++) {
+    // Remplace ça par une vraie source de random si tu veux
+    buf.push(Math.floor(Math.random() * 256));
+  }
+  return buf;
+});
 
 // Create the AuthContext with the defined type
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,15 +71,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     showLoading('Signing in...');
     try {
-      const foundUser = users.find(u => u.email === email && u.password === password);
-      if (foundUser) {
-        // For security, don't store the password
-        const userWithoutPassword = { ...foundUser, password: '' };
-        setUser(userWithoutPassword);
-        await AsyncStorage.setItem('user', JSON.stringify(userWithoutPassword));
-        return true;
-      }
-      return false;
+      const foundUser = users.find(u => u.email === email);
+      if (!foundUser) return false;
+  
+
+      const isPasswordValid = await bcrypt.compare(password, foundUser.password);
+      if (!isPasswordValid) return false;
+  
+      const userWithoutPassword = { ...foundUser, password: '' };
+      setUser(userWithoutPassword);
+      await AsyncStorage.setItem('user', JSON.stringify(userWithoutPassword));
+      return true;
     } catch (error) {
       console.error('Error during login:', error);
       return false;
@@ -90,12 +102,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
 
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
       // Create new user
       const newUser: User = {
         id: Date.now().toString(),
         name,
         email,
-        password
+        password: hashedPassword
       };
 
       // Add new user to local users list
@@ -155,18 +169,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const changePassword = async (email: string, newPassword: string): Promise<boolean> => {
     const foundUser = users.find(u => u.email === email);
 
-    showLoading('Updating profile...');
+    showLoading('Updating password...');
     try {
-      // If there is no login of the mail
+      // If there is no user with this email
       if(!foundUser) return false;
 
+      // Hash the new password
+      console.log(newPassword);
+      const hashedPassword = await bcrypt.hash(newPassword, 10);      
+      console.log(hashedPassword);
+            
       // Update user info in state and storage
-      const updatedUser = { ...foundUser, password:newPassword };
-      setUsers(prev => prev.map(u => u.id === foundUser.id ? { ...u, password:newPassword } : u));
-      await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+      const updatedUser = { ...foundUser, password: hashedPassword };
+      setUsers(prev => prev.map(u => u.id === foundUser.id ? { ...u, password: hashedPassword } : u));
+      
+      // Only update AsyncStorage if this is the currently logged in user
+      if (user && user.id === foundUser.id) {
+        const userWithoutPassword = { ...updatedUser, password: '' };
+        setUser(userWithoutPassword);
+        await AsyncStorage.setItem('user', JSON.stringify(userWithoutPassword));
+      }
+      
       return true;
     } catch (error) {
-      console.error('Error updating passwors:', error);
+      console.error('Error updating password:', error);
       return false;
     } finally {
       hideLoading();

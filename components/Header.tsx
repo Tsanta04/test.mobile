@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Moon, Sun, Filter } from 'lucide-react-native';
+import { Moon, Sun, Filter, Search } from 'lucide-react-native';
 
 // Custom type for theme colors
 import { ColorType } from '@/constants/type';
@@ -10,7 +10,8 @@ import { ColorType } from '@/constants/type';
 interface HeaderProps {
   title: string;                 
   theme: 'light' | 'dark';     
-  toggleTheme: () => void;      
+  toggleTheme: () => void;    
+  onToggleSearch?: () =>void;  
   onToggleFilters?: () => void; 
   colors: ColorType;            
 }
@@ -23,6 +24,7 @@ const Header: React.FC<HeaderProps> = ({
   title,
   theme,
   toggleTheme,
+  onToggleSearch,  
   onToggleFilters,
   colors
 }) => {
@@ -89,12 +91,20 @@ const Header: React.FC<HeaderProps> = ({
 
           {/* Show filter button only for 'Products' screen and if handler exists */}
           {title === 'Products' && onToggleFilters && (
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={onToggleFilters}
-            >
+            <>
+              <TouchableOpacity
+                style={styles.headerButton}
+                onPress={onToggleSearch}
+              >
+                <Search size={18} color="#000" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.headerButton}
+                onPress={onToggleFilters}
+              >
               <Filter size={18} color="#000" />
-            </TouchableOpacity>
+            </TouchableOpacity>            
+            </>
           )}
         </View>
       </LinearGradient>

@@ -94,7 +94,7 @@ export function LoadingDemo() {
 
   const testChangePasswordLoading = async () => {
     try {
-      await changePassword('password123', 'newPassword123');
+      await changePassword('test@example.com', 'newPassword123');
     } catch (error) {
       console.log('Change password test completed');
     }

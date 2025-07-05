@@ -89,7 +89,7 @@ export default function ChangePasswordScreen() {
    */
   const handleUpdate = async () => {
     if (!validateForm()) return;
-    console.log("Form submitted");
+    
     try {
       const success = await changePassword(email, password);
 
@@ -199,12 +199,6 @@ export default function ChangePasswordScreen() {
         style={styles.gradient}
       >
         {/* Back button to navigate to the previous screen */}
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <ArrowLeft size={20} color={colors.text} />
-        </TouchableOpacity>
 
         <ScrollView
           contentContainerStyle={styles.scrollContainer}

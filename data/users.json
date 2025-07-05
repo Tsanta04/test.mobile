@@ -3,12 +3,6 @@
     "id": "1",
     "email": "test@example.com",
     "name": "John Doe",
-    "password": "password123"
-  },
-  {
-    "id": "2",
-    "email": "admin@example.com",
-    "name": "Admin User",
-    "password": "admin123"
+    "password": "$2b$10$T8y9QQQ.Xdq2CmATk6jXrOwQZYlfZrPtVJYc8T/0DsvFpBOojiDF."  
   }
 ]

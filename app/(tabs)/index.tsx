@@ -35,6 +35,7 @@ export default function ProductsScreen() {
   const [selectedSeller, setSelectedSeller] = useState('All');
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [showFilters, setShowFilters] = useState(false);
+  const [showSearch, setShowSearch] = useState(true);  
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showSellerModal, setShowSellerModal] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -208,33 +209,36 @@ export default function ProductsScreen() {
         theme={theme}
         toggleTheme={toggleTheme}
         onToggleFilters={() => setShowFilters(!showFilters)}
+        onToggleSearch={() => setShowSearch(!showSearch)}        
         colors={colors}
       />
 
       {/* Search input bar */}
-      <View style={styles.searchContainer}>
-        <View style={styles.searchWrapper}>
-          <Search size={18} color={colors.textSecondary} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search products..."
-            placeholderTextColor={colors.textSecondary}
-            value={searchQuery}
-            onChangeText={(text) => {
-              setSearchQuery(text);
-              setCurrentPage(1);
-            }}
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => {
-              setSearchQuery('');
-              setCurrentPage(1);
-            }}>
-              <X size={18} color={colors.textSecondary} />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+      {showSearch &&
+        <View style={styles.searchContainer}>
+          <View style={styles.searchWrapper}>
+            <Search size={18} color={colors.textSecondary} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search products..."
+              placeholderTextColor={colors.textSecondary}
+              value={searchQuery}
+              onChangeText={(text) => {
+                setSearchQuery(text);
+                setCurrentPage(1);
+              }}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => {
+                setSearchQuery('');
+                setCurrentPage(1);
+              }}>
+                <X size={18} color={colors.textSecondary} />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>      
+      }
 
       {/* Filter panel (shown when toggled) */}
       {showFilters && (

@@ -41,40 +41,32 @@ export default function DistributionChartsSection({
       <Text style={styles.sectionTitle}>Distribution Charts</Text>
 
       {/* Category distribution chart - only render if data exists */}
-      {categoryData.length > 0 && (
-        <SimpleChart
-          data={categoryData}
-          type="bar"
-          title="Products by Category"
-        />
-      )}
+      <SimpleChart
+        data={categoryData}
+        type="bar"
+        title="Products by Category"
+      />
 
       {/* Seller distribution chart - only render if data exists */}
-      {sellerData.length > 0 && (
-        <SimpleChart
-          data={sellerData}
-          type="bar"
-          title="Products by Seller"
-        />
-      )}      
+      <SimpleChart
+        data={sellerData}
+        type="bar"
+        title="Products by Seller"
+      />
 
       {/* Price range distribution chart - only render if data exists */}
-      {priceRangeData.length > 0 && (
-        <SimpleChart
-          data={priceRangeData}
-          type="pie"
-          title="Price Distribution"
-        />
-      )}
+      <SimpleChart
+        data={priceRangeData}
+        type="pie"
+        title="Price Distribution"
+      />
 
       {/* Stock level distribution chart - only render if data exists */}
-      {stockRangeData.length > 0 && (
-        <SimpleChart
-          data={stockRangeData}
-          type="bar"
-          title="Stock Level Distribution"
-        />
-      )}
+      <SimpleChart
+        data={stockRangeData}
+        type="bar"
+        title="Stock Level Distribution"
+      />
     </View>
   );
 }

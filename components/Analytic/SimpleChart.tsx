@@ -3,6 +3,8 @@ import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { ChartDataPoint } from '@/constants/type';
+import { BarChart3 } from 'lucide-react-native';
+import { EmptyDataMessage } from '../Common/EmptyDataMessage';
 
 // Props for the chart component
 interface SimpleChartProps {
@@ -106,6 +108,9 @@ export default function SimpleChart({ data, type, title }: SimpleChartProps) {
       fontFamily: 'Inter-Regular',
       color: colors.text,
     },
+    emptyIcon: {
+      marginBottom: 12,
+    }
   });
 
   // Default color palette for chart elements
@@ -116,27 +121,36 @@ export default function SimpleChart({ data, type, title }: SimpleChartProps) {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>{title}</Text>
-        {data.map((item, index) => {
-          // Calculate percentage for bar width
-          const percentage = maxValue > 0 ? (item.value / maxValue) * 100 : 0;
-          return (
-            <View key={index} style={styles.barContainer}>
-              <Text style={styles.barLabel}>{item.label}</Text>
-              <View style={styles.barBackground}>
-                <View 
-                  style={[
-                    styles.barFill, 
-                    { 
-                      width: `${percentage}%`,
-                      backgroundColor: item.color || defaultColors[index % defaultColors.length]
-                    }
-                  ]} 
-                />
+        {data.length > 0 ? (
+          data.map((item, index) => {
+            // Calculate percentage for bar width
+            const percentage = maxValue > 0 ? (item.value / maxValue) * 100 : 0;
+            return (
+              <View key={index} style={styles.barContainer}>
+                <Text style={styles.barLabel}>{item.label}</Text>
+                <View style={styles.barBackground}>
+                  <View 
+                    style={[
+                      styles.barFill, 
+                      { 
+                        width: `${percentage}%`,
+                        backgroundColor: item.color || defaultColors[index % defaultColors.length]
+                      }
+                    ]} 
+                  />
+                </View>
+                <Text style={styles.barValue}>{item.value}</Text>
               </View>
-              <Text style={styles.barValue}>{item.value}</Text>
-            </View>
-          );
-        })}
+            );
+          })
+        ) : (
+          <EmptyDataMessage
+            message="No entries found"
+            subtext="Please add some entries to see them here."
+            icon={<BarChart3 size={64} color={colors.textSecondary} style={styles.emptyIcon} />}
+            colors={colors}
+          />
+        )}
       </View>
     );
   }
@@ -147,23 +161,32 @@ export default function SimpleChart({ data, type, title }: SimpleChartProps) {
       <Text style={styles.title}>{title}</Text>
       <View style={styles.pieContainer}>
         <View style={styles.legend}>
-          {data.map((item, index) => {
-            // Calculate percentage for pie chart
-            const percentage = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0';
-            return (
-              <View key={index} style={styles.legendItem}>
-                <View 
-                  style={[
-                    styles.legendColor, 
-                    { backgroundColor: item.color || defaultColors[index % defaultColors.length] }
-                  ]} 
-                />
-                <Text style={styles.legendText}>
-                  {item.label}: {percentage}% ({item.value})
-                </Text>
-              </View>
-            );
-          })}
+          {data.length > 0 ? (
+            data.map((item, index) => {
+              // Calculate percentage for pie chart
+              const percentage = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0';
+              return (
+                <View key={index} style={styles.legendItem}>
+                  <View 
+                    style={[
+                      styles.legendColor, 
+                      { backgroundColor: item.color || defaultColors[index % defaultColors.length] }
+                    ]} 
+                  />
+                  <Text style={styles.legendText}>
+                    {item.label}: {percentage}% ({item.value})
+                  </Text>
+                </View>
+              );
+            })
+          ) : (
+            <EmptyDataMessage
+              message="No entries found"
+              subtext="Please add some entries to see them here."
+              icon={<BarChart3 size={64} color={colors.textSecondary} style={styles.emptyIcon} />}
+              colors={colors}
+            />
+          )}
         </View>
       </View>
     </View>
