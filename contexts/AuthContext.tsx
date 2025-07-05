@@ -23,6 +23,7 @@ interface AuthContextType {
   updateProfile: (name: string, email: string) => Promise<boolean>;
 }
 
+// Generate crypt random
 bcrypt.setRandomFallback((len) => {
   const buf = [];
   for (let i = 0; i < len; i++) {
