@@ -18,6 +18,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
+  changePassword: (email: string, newPassword: string) => Promise<boolean>;
   updateProfile: (name: string, email: string) => Promise<boolean>;
 }
 
@@ -151,6 +152,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const changePassword = async (email: string, newPassword: string): Promise<boolean> => {
+    const foundUser = users.find(u => u.email === email);
+
+    showLoading('Updating profile...');
+    try {
+      // If there is no login of the mail
+      if(!foundUser) return false;
+
+      // Update user info in state and storage
+      const updatedUser = { ...foundUser, password:newPassword };
+      setUsers(prev => prev.map(u => u.id === foundUser.id ? { ...u, password:newPassword } : u));
+      await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+      return true;
+    } catch (error) {
+      console.error('Error updating passwors:', error);
+      return false;
+    } finally {
+      hideLoading();
+    }
+  };  
+
   // Provide the context to children components
   return (
     <AuthContext.Provider value={{
@@ -159,6 +181,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       register,
       logout,
+      changePassword,
       updateProfile
     }}>
       {children}

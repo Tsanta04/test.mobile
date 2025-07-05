@@ -10,6 +10,7 @@ import { DataProvider } from '@/contexts/DataContext';
 import { NotifProvider } from '@/contexts/NotifContext';
 import { LoadingProvider } from '@/contexts/LoadingContext';
 import { GlobalLoadingSpinner } from '@/components/Common/GlobalLoadingSpinner';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,6 +27,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
+      AsyncStorage.clear();
     }
   }, [fontsLoaded, fontError]);
 

@@ -44,15 +44,15 @@ export default function OverviewStatisticsSection({
         statsGrid: {
           flexDirection: 'row',
           flexWrap: 'wrap',
-          gap: 12,
+          gap: 15,
           margin:'auto',
           marginBottom: 20,
         },
         statCardSmall: {
-          width: (width - 64) / 2,
+          width: (width - 63) / 2,
         },
         statCardLarge: {
-          width: width - 40,
+          width: width - 48,
         },
       });
     

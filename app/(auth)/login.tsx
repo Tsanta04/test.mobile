@@ -212,6 +212,15 @@ export default function LoginScreen() {
               }
             />
 
+          {/* Link to change password page */}
+          <View>
+            <TouchableOpacity
+              onPress={() => router.push('/(auth)/changePassword')}
+            >
+              <Text style={styles.demoText}>Forgot password?</Text>
+            </TouchableOpacity>
+          </View>            
+
             {/* Login button */}
             <ButtonForm
               onPress={handleLogin}
