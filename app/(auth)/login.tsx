@@ -14,6 +14,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { router } from 'expo-router';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLoading } from '@/contexts/LoadingContext';
 import InputForm from '@/components/Form/InputForm';
 import ButtonForm from '@/components/Form/ButtonForm';
 
@@ -21,12 +22,12 @@ export default function LoginScreen() {
   // Access the current theme colors (light/dark)
   const { colors } = useTheme();
   const { login } = useAuth();
+  const { isLoading } = useLoading();
 
   // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
 
@@ -57,7 +58,6 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     if (!validateForm()) return;
     console.log("Form validated");
-    setIsLoading(true);
 
     //Do login
     try {
@@ -69,10 +69,7 @@ export default function LoginScreen() {
       }
     } catch (error) {
       Alert.alert('Error', 'An unexpected error occurred. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
-
   };
 
 

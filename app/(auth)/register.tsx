@@ -15,6 +15,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { router } from 'expo-router';
 import { Eye, EyeOff, Mail, Lock, User, UserPlus, ArrowLeft } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLoading } from '@/contexts/LoadingContext';
 import InputForm from '@/components/Form/InputForm';
 import ButtonForm from '@/components/Form/ButtonForm';
 
@@ -22,7 +23,8 @@ import ButtonForm from '@/components/Form/ButtonForm';
 export default function RegisterScreen() {
   // Theme colors from context
   const { colors } = useTheme();
-  const { register } = useAuth();  
+  const { register } = useAuth();
+  const { isLoading } = useLoading();
 
   // Form state variables
   const [name, setName] = useState('');
@@ -31,7 +33,6 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
 
   // Validation errors state
@@ -97,7 +98,6 @@ export default function RegisterScreen() {
   const handleRegister = async () => {
     if (!validateForm()) return;
     console.log("Form submitted");
-    setIsLoading(true);
     try {
       const success = await register(name.trim(), email, password);
 
@@ -112,10 +112,7 @@ export default function RegisterScreen() {
       }
     } catch (error) {
       Alert.alert('Error', 'An unexpected error occurred. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
-
   };
 
 

@@ -8,6 +8,8 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { DataProvider } from '@/contexts/DataContext';
 import { NotifProvider } from '@/contexts/NotifContext';
+import { LoadingProvider } from '@/contexts/LoadingContext';
+import { GlobalLoadingSpinner } from '@/components/Common/GlobalLoadingSpinner';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -33,20 +35,23 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <NotifProvider>
-          <DataProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="welcome" />
-              <Stack.Screen name="(auth)" />
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="analytics" />
-              <Stack.Screen name="+not-found" />
-            </Stack>
-            <StatusBar style="auto" />
-          </DataProvider>
-        </NotifProvider>
-      </AuthProvider>
+      <LoadingProvider>
+        <AuthProvider>
+          <NotifProvider>
+            <DataProvider>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="welcome" />
+                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="analytics" />
+                <Stack.Screen name="+not-found" />
+              </Stack>
+              <StatusBar style="auto" />
+              <GlobalLoadingSpinner />
+            </DataProvider>
+          </NotifProvider>
+        </AuthProvider>
+      </LoadingProvider>
     </ThemeProvider>
   );
 }

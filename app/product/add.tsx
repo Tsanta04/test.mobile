@@ -6,7 +6,6 @@ import { router } from 'expo-router';
 import { useData } from '@/contexts/DataContext';
 
 export default function AddProductScreen() {
-  const [isLoading, setIsLoading] = useState(false);
   const {addProduct, addCategory, addSeller} = useData();
   const [formData, setFormData] = useState<ProductType>({
     name: '',
@@ -20,9 +19,8 @@ export default function AddProductScreen() {
 
   const handleSave = async () => {
     console.log("Form is valid: ", formData);
-    setIsLoading(true);
     try {
-      addProduct({
+      await addProduct({
         name: formData.name.trim(),
         description: formData.description.trim(),
         price: parseFloat(formData.price),
@@ -40,26 +38,33 @@ export default function AddProductScreen() {
       );
     } catch (error) {
       Alert.alert('Error', 'Failed to add product. Please try again.');
-    } finally {
-      setIsLoading(false);
     }    
   };
 
-  const handleAddCategory = (newCategoryName: string) => {
+  const handleAddCategory = async (newCategoryName: string) => {
     if (newCategoryName.trim()) {
-      console.log("Adding category: ", newCategoryName);      
-      addCategory(newCategoryName.trim());      
-      setFormData({ ...formData, category: newCategoryName });
+      try {
+        console.log("Adding category: ", newCategoryName);      
+        await addCategory(newCategoryName.trim());      
+        setFormData({ ...formData, category: newCategoryName });
+      } catch (error) {
+        Alert.alert('Error', 'Failed to add category. Please try again.');
+      }
     }
   };
 
-  const handleAddSeller = (newSellerName: string) => {
+  const handleAddSeller = async (newSellerName: string) => {
     if (newSellerName.trim()) {
-      console.log("Adding seller: ", newSellerName);
-      addSeller(newSellerName.trim());
-      setFormData({ ...formData, seller: newSellerName });
+      try {
+        console.log("Adding seller: ", newSellerName);
+        await addSeller(newSellerName.trim());
+        setFormData({ ...formData, seller: newSellerName });
+      } catch (error) {
+        Alert.alert('Error', 'Failed to add seller. Please try again.');
+      }
     }
   };
+
   return (
     <ProductForm 
       handleSave={handleSave} 

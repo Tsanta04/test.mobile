@@ -51,7 +51,13 @@ export default function ProductCard({ product, viewMode }: ProductCardProps) {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: () => deleteProduct(product.id),
+          onPress: async () => {
+            try {
+              await deleteProduct(product.id);
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete product. Please try again.');
+            }
+          },
         },
       ]
     );

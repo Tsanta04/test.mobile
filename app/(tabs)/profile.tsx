@@ -17,6 +17,7 @@ import Header from '@/components/Header';
 import ButtonForm from '@/components/Form/ButtonForm';
 import EditProfileForm from '@/components/Profil/EditProfil';
 import { useNotif } from '@/contexts/NotifContext';
+import { useLoading } from '@/contexts/LoadingContext';
 import OverviewStatisticsSection from '@/components/Analytic/OverviewStatistics';
 import { useData } from '@/contexts/DataContext';
 import { router } from 'expo-router';
@@ -26,15 +27,15 @@ export default function ProfileScreen() {
   // Get user, logout, and updateProfile from context
   const { user, logout, updateProfile } = useAuth();
   const { addNotification } = useNotif();
+  const { isLoading } = useLoading();
   const {getStatProducts} = useData();
   const { totalProducts, totalValue, totalStock, averagePrice, highestPriced, lowestPriced, averageStock } = getStatProducts();
   const { colors, theme, toggleTheme } = useTheme();
   
-  // State for editing mode, form fields, and loading
+  // State for editing mode, form fields
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(user?.name || '');
   const [editEmail, setEditEmail] = useState(user?.email || '');
-  const [isLoading, setIsLoading] = useState(false);
 
   // Save profile changes with validation and notification
   const saveProfile = async() =>{
@@ -48,7 +49,6 @@ export default function ProfileScreen() {
       return;
     }
 
-    setIsLoading(true);
     try {
       const success = await updateProfile(editName.trim(), editEmail);
       if (success) {
@@ -60,8 +60,6 @@ export default function ProfileScreen() {
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to update profile');
-    } finally {
-      setIsLoading(false);
     }    
   }
 

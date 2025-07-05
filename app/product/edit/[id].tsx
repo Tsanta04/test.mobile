@@ -8,10 +8,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { View } from 'lucide-react-native';
 import { Alert, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
+
 export default function AddProductScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { products, updateProduct, addCategory, addSeller } = useData();
-  const [ isLoading, setIsLoading ] = useState(false);
   const { colors } = useTheme();
   const { user } = useAuth();
 
@@ -43,9 +43,8 @@ export default function AddProductScreen() {
 
   const handleUpdate = async () => {
     console.log("Form is valid: ", formData);
-    setIsLoading(true);
     try {
-      updateProduct(id!, {
+      await updateProduct(id!, {
         name: formData.name.trim(),
         description: formData.description.trim(),
         price: parseFloat(formData.price),
@@ -63,24 +62,30 @@ export default function AddProductScreen() {
     } catch (error) {
       console.log(error);      
       Alert.alert('Error', 'Failed to update product. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const handleAddCategory = (newCategoryName: string) => {
+  const handleAddCategory = async (newCategoryName: string) => {
     if (newCategoryName.trim()) {
-      console.log("Adding category: ", newCategoryName);      
-      addCategory(newCategoryName.trim());      
-      setFormData({ ...formData, category: newCategoryName });
+      try {
+        console.log("Adding category: ", newCategoryName);      
+        await addCategory(newCategoryName.trim());      
+        setFormData({ ...formData, category: newCategoryName });
+      } catch (error) {
+        Alert.alert('Error', 'Failed to add category. Please try again.');
+      }
     }
   };
 
-  const handleAddSeller = (newSellerName: string) => {
+  const handleAddSeller = async (newSellerName: string) => {
     if (newSellerName.trim()) {
-      console.log("Adding seller: ", newSellerName);
-      addSeller(newSellerName.trim());
-      setFormData({ ...formData, seller: newSellerName });
+      try {
+        console.log("Adding seller: ", newSellerName);
+        await addSeller(newSellerName.trim());
+        setFormData({ ...formData, seller: newSellerName });
+      } catch (error) {
+        Alert.alert('Error', 'Failed to add seller. Please try again.');
+      }
     }
   };
 

@@ -371,9 +371,13 @@ export default function ProductDetailScreen() {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: () => {
-            deleteProduct(product.id);
-            router.back();
+          onPress: async () => {
+            try {
+              await deleteProduct(product.id);
+              router.back();
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete product. Please try again.');
+            }
           },
         },
       ]

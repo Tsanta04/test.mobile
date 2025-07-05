@@ -15,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useData } from '@/contexts/DataContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useLoading } from '@/contexts/LoadingContext';
 import * as ImagePicker from 'expo-image-picker';
 import {
   ArrowLeft,
@@ -50,11 +51,12 @@ export default function ProductForm(
   const { categories, sellers } = useData();
   // Get theme colors
   const { colors } = useTheme();
-  // State for camera, modals, loading, errors, etc.
+  // Get loading context
+  const { isLoading } = useLoading();
+  // State for camera, modals, errors, etc.
   const [showImageOptions, setShowImageOptions] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showSellerModal, setShowSellerModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showImageModal,setShowImageModal] = useState<boolean>(false);
 
@@ -281,14 +283,20 @@ export default function ProductForm(
     setShowImageModal(true);
   };
 
-  const save = ()=>{
-    if(!validateForm())return;    
+  const save = async () => {
+    if(!validateForm()) return;    
     Alert.alert(
       title,
-        'Are you sure to pursue this action?',
+      'Are you sure to pursue this action?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Confirm', style: 'default', onPress: () => {handleSave()} },
+        { 
+          text: 'Confirm', 
+          style: 'default', 
+          onPress: async () => {
+            await handleSave();
+          } 
+        },
       ]
     );
   }

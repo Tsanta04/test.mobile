@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from './AuthContext';
 import { useNotif } from './NotifContext';
+import { useLoading } from './LoadingContext';
 import productsData from '@/data/products.json';
 import categoriesData from '@/data/categories.json';
 import sellersData from '@/data/sellers.json';
@@ -37,11 +38,11 @@ interface DataContextType {
   products: Product[];
   categories: Category[];
   sellers: Seller[];
-  addCategory: (name: string) => void;
-  addSeller: (name: string) => void;  
-  addProduct: (product: Omit<Product, 'id' | 'createdBy' | 'createdAt'>) => void;
-  updateProduct: (id: string, product: Omit<Product, 'id' | 'createdBy' | 'createdAt'>) => void;
-  deleteProduct: (id: string) => void;
+  addCategory: (name: string) => Promise<void>;
+  addSeller: (name: string) => Promise<void>;  
+  addProduct: (product: Omit<Product, 'id' | 'createdBy' | 'createdAt'>) => Promise<void>;
+  updateProduct: (id: string, product: Omit<Product, 'id' | 'createdBy' | 'createdAt'>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
   getStatProducts: ()=> StatProductType
   getUserProducts: () => Product[];
 }
@@ -54,6 +55,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const { addNotification } = useNotif();
+  const { showLoading, hideLoading } = useLoading();
 
   // States for products, categories, sellers, notifications
   const [products, setProducts] = useState<Product[]>(productsData as Product[]);
@@ -67,6 +69,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   // Function to load data from AsyncStorage
   const loadData = async () => {
+    showLoading('Loading data...');
     try {
       const [storedProducts, storedCategories, storedSellers ] = await Promise.all([
         AsyncStorage.getItem('products'),
@@ -79,6 +82,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       if (storedSellers) setSellers(JSON.parse(storedSellers));
     } catch (error) {
       console.error('Error loading data:', error);
+    } finally {
+      hideLoading();
     }
   };
 
@@ -88,73 +93,113 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       await AsyncStorage.setItem(key, JSON.stringify(data));
     } catch (error) {
       console.error(`Error saving ${key}:`, error);
+      throw error; // Re-throw to handle in calling function
     }
   };
 
   // Add new product (createdBy current user)
-  const addProduct = (productData: Omit<Product, 'id' | 'createdBy' | 'createdAt'>) => {
+  const addProduct = async (productData: Omit<Product, 'id' | 'createdBy' | 'createdAt'>) => {
     if (!user) return;
 
-    const newProduct: Product = {
-      ...productData,
-      id: Date.now().toString(),
-      createdBy: user.id,
-      createdAt: new Date().toISOString()
-    };
+    showLoading('Adding product...');
+    try {
+      const newProduct: Product = {
+        ...productData,
+        id: Date.now().toString(),
+        createdBy: user.id,
+        createdAt: new Date().toISOString()
+      };
 
-    const updatedProducts = [...products, newProduct];
-    setProducts(updatedProducts);
-    saveData('products', updatedProducts);
-    addNotification(`Product "${newProduct.name}" has been added`, 'product_added');
+      const updatedProducts = [...products, newProduct];
+      setProducts(updatedProducts);
+      await saveData('products', updatedProducts);
+      addNotification(`Product "${newProduct.name}" has been added`, 'product_added');
+    } catch (error) {
+      console.error('Error adding product:', error);
+      throw error;
+    } finally {
+      hideLoading();
+    }
   };
 
   // Update existing product by ID
-  const updateProduct = (id: string, productData: Omit<Product, 'id' | 'createdBy' | 'createdAt'>) => {
+  const updateProduct = async (id: string, productData: Omit<Product, 'id' | 'createdBy' | 'createdAt'>) => {
     if (!user) return;
 
-    const updatedProducts = products.map(p => 
-      p.id === id ? { ...p, ...productData } : p
-    );
-    setProducts(updatedProducts);
-    saveData('products', updatedProducts);
-    addNotification(`Product "${productData.name}" has been updated`, 'product_updated');
+    showLoading('Updating product...');
+    try {
+      const updatedProducts = products.map(p => 
+        p.id === id ? { ...p, ...productData } : p
+      );
+      setProducts(updatedProducts);
+      await saveData('products', updatedProducts);
+      addNotification(`Product "${productData.name}" has been updated`, 'product_updated');
+    } catch (error) {
+      console.error('Error updating product:', error);
+      throw error;
+    } finally {
+      hideLoading();
+    }
   };
 
   // Delete product by ID
-  const deleteProduct = (id: string) => {
+  const deleteProduct = async (id: string) => {
     const product = products.find(p => p.id === id);
     if (!product) return;
 
-    const updatedProducts = products.filter(p => p.id !== id);
-    setProducts(updatedProducts);
-    saveData('products', updatedProducts);
-    addNotification(`Product "${product.name}" has been deleted`, 'product_deleted');
+    showLoading('Deleting product...');
+    try {
+      const updatedProducts = products.filter(p => p.id !== id);
+      setProducts(updatedProducts);
+      await saveData('products', updatedProducts);
+      addNotification(`Product "${product.name}" has been deleted`, 'product_deleted');
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      throw error;
+    } finally {
+      hideLoading();
+    }
   };
 
   // Add new category  
-  const addCategory = (name: string) => {
-    const newCategory: Category = {
-      id: Date.now().toString(),
-      name
-    };
-    const updatedCategories = [...categories, newCategory];
-    setCategories(updatedCategories);
-    saveData('categories', updatedCategories);
-    addNotification(`Category "${name}" has been added`, 'category_added');
+  const addCategory = async (name: string) => {
+    showLoading('Adding category...');
+    try {
+      const newCategory: Category = {
+        id: Date.now().toString(),
+        name
+      };
+      const updatedCategories = [...categories, newCategory];
+      setCategories(updatedCategories);
+      await saveData('categories', updatedCategories);
+      addNotification(`Category "${name}" has been added`, 'category_added');
+    } catch (error) {
+      console.error('Error adding category:', error);
+      throw error;
+    } finally {
+      hideLoading();
+    }
   };
 
   // Add new seller  
-  const addSeller = (name: string) => {
-    const newSeller: Seller = {
-      id: Date.now().toString(),
-      name
-    };
-    const updatedSellers = [...sellers, newSeller];
-    setSellers(updatedSellers);
-    saveData('sellers', updatedSellers);
-    addNotification(`Seller "${name}" has been added`, 'seller_added');    
+  const addSeller = async (name: string) => {
+    showLoading('Adding seller...');
+    try {
+      const newSeller: Seller = {
+        id: Date.now().toString(),
+        name
+      };
+      const updatedSellers = [...sellers, newSeller];
+      setSellers(updatedSellers);
+      await saveData('sellers', updatedSellers);
+      addNotification(`Seller "${name}" has been added`, 'seller_added');
+    } catch (error) {
+      console.error('Error adding seller:', error);
+      throw error;
+    } finally {
+      hideLoading();
+    }
   };
-
 
   // Get all products created by the current user
   const getUserProducts = () => {
@@ -217,19 +262,21 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     return {totalProducts, totalValue, totalStock, averagePrice, highestPriced, lowestPriced, averageStock, priceRangeData, stockRangeData, categoryData, sellerData }
   }
 
+  const value: DataContextType = {
+    products,
+    categories,
+    sellers,
+    addCategory,
+    addSeller,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    getStatProducts,
+    getUserProducts,
+  };
+
   return (
-    <DataContext.Provider value={{
-      products,
-      categories,
-      sellers,
-      addProduct,
-      updateProduct,
-      deleteProduct,
-      addCategory,
-      addSeller,
-      getStatProducts,
-      getUserProducts
-    }}>
+    <DataContext.Provider value={value}>
       {children}
     </DataContext.Provider>
   );
