@@ -5,7 +5,7 @@ Une application mobile moderne développée avec React Native et Expo pour la ge
 ## Fonctionnalités
 
 - **Authentification complète** : Inscription, connexion, changement de mot de passe
-- **Gestion de produits** : Ajout, modification, suppression et visualisation de produits
+- **Gestion de produits** : Ajout, modification, suppression et visualisation de produits (Seul l'utilisateur ayant créé le produit peut le modifier ou le supprimer.)
 - **Système de notifications** : Notifications en temps réel
 - **Analytics** : Tableaux de bord avec statistiques et graphiques
 - **Interface moderne** : Design responsive avec thème sombre/clair
