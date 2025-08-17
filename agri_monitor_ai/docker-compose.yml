@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # Service API
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8080
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/agri_monitor
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_ORG=agri_monitor
+      - INFLUXDB_BUCKET=sensor_data
+      - INFLUXDB_TOKEN=my-token
+      - MONGODB_URI=mongodb://mongodb:27017
+      - MONGODB_DB=agri_monitor
+      - MODELS_DIR=/app/models
+      - RUST_LOG=info
+    volumes:
+      - ./models:/app/models
+    depends_on:
+      - postgres
+      - influxdb
+      - mongodb
+    restart: unless-stopped
+
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=agri_monitor
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  # Base de données InfluxDB
+  influxdb:
+    image: influxdb:2.7
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=adminpassword
+      - DOCKER_INFLUXDB_INIT_ORG=agri_monitor
+      - DOCKER_INFLUXDB_INIT_BUCKET=sensor_data
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-token
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    ports:
+      - "8086:8086"
+    restart: unless-stopped
+
+  # Base de données MongoDB
+  mongodb:
+    image: mongo:6
+    environment:
+      - MONGO_INITDB_DATABASE=agri_monitor
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  influxdb_data:
+  mongodb_data:
+
