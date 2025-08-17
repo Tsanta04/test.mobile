@@ -22,6 +22,7 @@ use crate::types::{
     SensorPredictionRequest, ImagePredictionRequest
 };
 use common::error::AgriResult;
+use common::models::Model;
 
 /// Gestionnaire principal pour les prédictions de fertilité
 pub struct FertilityPredictor {
@@ -177,4 +178,3 @@ impl Default for FertilityPredictor {
         Self::new()
     }
 }
-
