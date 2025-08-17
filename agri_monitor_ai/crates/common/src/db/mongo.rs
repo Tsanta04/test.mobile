@@ -36,7 +36,7 @@ impl MongoClient {
     }
     
     /// Insert a document into a collection
-    pub async fn insert<T: Serialize>(&self, collection: &str, document: &T) -> AgriResult<String> {
+    pub async fn insert<T: Serialize>(&self, collection: &str, _document: &T) -> AgriResult<String> {
         // In a real implementation, this would insert a document
         // For now, we'll just log that it would happen
         tracing::info!("Inserting document into MongoDB: collection={}", collection);
@@ -76,7 +76,7 @@ impl MongoClient {
     }
     
     /// Update a document
-    pub async fn update<T: Serialize>(&self, collection: &str, id: &str, document: &T) -> AgriResult<bool> {
+    pub async fn update<T: Serialize>(&self, collection: &str, id: &str, _document: &T) -> AgriResult<bool> {
         // In a real implementation, this would update a document
         // For now, we'll just log that it would happen
         tracing::info!("Updating document in MongoDB: collection={}, id={}", collection, id);

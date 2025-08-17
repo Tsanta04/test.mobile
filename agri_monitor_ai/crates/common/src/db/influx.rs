@@ -32,7 +32,7 @@ impl InfluxClient {
     }
     
     /// Write data to InfluxDB
-    pub async fn write_data<T: Serialize>(&self, measurement: &str, tags: HashMap<String, String>, data: &T) -> AgriResult<()> {
+    pub async fn write_data<T: Serialize>(&self, measurement: &str, tags: HashMap<String, String>, _data: &T) -> AgriResult<()> {
         // In a real implementation, this would write data to InfluxDB
         // For now, we'll just log that it would happen
         tracing::info!("Writing data to InfluxDB: measurement={}, tags={:?}", measurement, tags);

@@ -74,19 +74,18 @@ pub fn calculate_ndvi(nir_channel: &[f32], red_channel: &[f32]) -> AgriResult<Ve
 
 /// Extract metadata from an image
 pub fn extract_image_metadata(image_data: &ImageData) -> AgriResult<std::collections::HashMap<String, String>> {
-    let image = load_image(&image_data.image_path)?;
+    // Créer une image à partir des données binaires
+    let image = image::load_from_memory(&image_data.image)
+        .map_err(|e| AgriMonitorError::ImageProcessingError(format!("Failed to load image from memory: {}", e)))?;
+    
     let (width, height) = image.dimensions();
     
     let mut metadata = std::collections::HashMap::new();
     metadata.insert("width".to_string(), width.to_string());
     metadata.insert("height".to_string(), height.to_string());
     metadata.insert("format".to_string(), format!("{:?}", image.color()));
-    
-    // Merge with existing metadata
-    for (key, value) in &image_data.metadata {
-        metadata.insert(key.clone(), value.clone());
-    }
+    metadata.insert("image_type".to_string(), image_data.image_type.clone());
+    metadata.insert("timestamp".to_string(), image_data.timestamp.to_rfc3339());
     
     Ok(metadata)
 }
-
