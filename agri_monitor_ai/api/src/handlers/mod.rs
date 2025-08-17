@@ -4,4 +4,5 @@
 
 pub mod disease_detection;
 pub mod water_level;
+pub mod fertility;
 
