@@ -5,7 +5,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::path::PathBuf;
+// Suppression de l'import inutilisé
 
 /// Sensor data input for raw data predictions
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -68,4 +68,3 @@ pub struct PredictionResult<T> {
     /// Additional information about the prediction
     pub additional_info: HashMap<String, String>,
 }
-

@@ -2,8 +2,8 @@
 //!
 //! This module provides a client for PostgreSQL to store and retrieve relational data.
 
-use crate::error::{AgriMonitorError, AgriResult};
-use serde::{Deserialize, Serialize};
+use crate::error::AgriResult;
+use serde::Deserialize;
 use std::collections::HashMap;
 
 // Placeholder for PostgreSQL client
@@ -34,7 +34,7 @@ impl PostgresClient {
     }
     
     /// Execute a query
-    pub fn execute(&self, query: &str, params: &[&dyn ToSql]) -> AgriResult<u64> {
+    pub fn execute(&self, query: &str, _params: &[&dyn ToSql]) -> AgriResult<u64> {
         // In a real implementation, this would execute a query
         // For now, we'll just log that it would happen
         tracing::info!("Executing query in PostgreSQL: query={}", query);
@@ -44,7 +44,7 @@ impl PostgresClient {
     }
     
     /// Query rows
-    pub fn query<T: for<'de> Deserialize<'de>>(&self, query: &str, params: &[&dyn ToSql]) -> AgriResult<Vec<T>> {
+    pub fn query<T: for<'de> Deserialize<'de>>(&self, query: &str, _params: &[&dyn ToSql]) -> AgriResult<Vec<T>> {
         // In a real implementation, this would query rows
         // For now, we'll just log that it would happen
         tracing::info!("Querying rows from PostgreSQL: query={}", query);
@@ -54,7 +54,7 @@ impl PostgresClient {
     }
     
     /// Query a single row
-    pub fn query_one<T: for<'de> Deserialize<'de>>(&self, query: &str, params: &[&dyn ToSql]) -> AgriResult<Option<T>> {
+    pub fn query_one<T: for<'de> Deserialize<'de>>(&self, query: &str, _params: &[&dyn ToSql]) -> AgriResult<Option<T>> {
         // In a real implementation, this would query a single row
         // For now, we'll just log that it would happen
         tracing::info!("Querying one row from PostgreSQL: query={}", query);
@@ -98,7 +98,7 @@ impl Transaction {
     }
     
     /// Execute a query within the transaction
-    pub fn execute(&self, query: &str, params: &[&dyn ToSql]) -> AgriResult<u64> {
+    pub fn execute(&self, query: &str, _params: &[&dyn ToSql]) -> AgriResult<u64> {
         // In a real implementation, this would execute a query within the transaction
         // For now, we'll just log that it would happen
         tracing::info!("Executing query in PostgreSQL transaction: query={}", query);
@@ -108,7 +108,7 @@ impl Transaction {
     }
     
     /// Query rows within the transaction
-    pub fn query<T: for<'de> Deserialize<'de>>(&self, query: &str, params: &[&dyn ToSql]) -> AgriResult<Vec<T>> {
+    pub fn query<T: for<'de> Deserialize<'de>>(&self, query: &str, _params: &[&dyn ToSql]) -> AgriResult<Vec<T>> {
         // In a real implementation, this would query rows within the transaction
         // For now, we'll just log that it would happen
         tracing::info!("Querying rows from PostgreSQL transaction: query={}", query);
@@ -129,4 +129,3 @@ impl ToSql for f64 {}
 impl ToSql for bool {}
 impl ToSql for String {}
 impl<'a> ToSql for &'a str {}
-

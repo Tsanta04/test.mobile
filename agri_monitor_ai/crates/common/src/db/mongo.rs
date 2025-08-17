@@ -2,7 +2,7 @@
 //!
 //! This module provides a client for MongoDB to store and retrieve documents.
 
-use crate::error::{AgriMonitorError, AgriResult};
+use crate::error::AgriResult;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -95,4 +95,3 @@ impl MongoClient {
         Ok(true)
     }
 }
-

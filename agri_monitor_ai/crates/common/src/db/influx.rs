@@ -2,7 +2,7 @@
 //!
 //! This module provides a client for InfluxDB to store and retrieve time series data.
 
-use crate::error::{AgriMonitorError, AgriResult};
+use crate::error::AgriResult;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -82,4 +82,3 @@ impl InfluxClient {
         Ok(vec![])
     }
 }
-
