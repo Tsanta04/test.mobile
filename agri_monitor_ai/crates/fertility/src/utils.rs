@@ -161,7 +161,7 @@ fn calculate_nutrient_deficit(current_level: f32, requirement: f32) -> f32 {
 }
 
 /// Détermine la priorité de fertilisation
-fn determine_fertilization_priority(
+pub fn determine_fertilization_priority(
     prediction: &FertilityPrediction,
     crop_data: &CropFertilityData,
 ) -> FertilizationPriority {
@@ -373,4 +373,3 @@ pub fn create_fertility_map(
 
     Ok(fertility_map)
 }
-

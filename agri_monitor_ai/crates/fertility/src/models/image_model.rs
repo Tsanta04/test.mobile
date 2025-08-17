@@ -3,7 +3,7 @@
 //! Ce module implémente un modèle pour analyser les images multispectrales
 //! et générer des cartes de fertilité du sol.
 
-use crate::types::{FertilityMap, GeoReference, MapResolution, SoilFertilityStatus};
+use crate::types::{FertilityMap, GeoReference, MapResolution};
 use crate::utils;
 use chrono::Utc;
 use common::data::ImageData;
@@ -251,4 +251,3 @@ impl Default for FertilityImageModel {
         Self::new()
     }
 }
-
