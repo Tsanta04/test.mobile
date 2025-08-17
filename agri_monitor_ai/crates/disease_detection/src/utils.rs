@@ -57,14 +57,17 @@ fn combine_predictions(
             let timestamp = sensor.timestamp; // Use sensor timestamp
             
             // Determine if a disease is detected
-            let disease_detected = sensor.prediction.disease_detected || image.prediction.disease_detected;
+            let is_disease_detected = sensor.prediction.disease_detected || image.prediction.disease_detected;
             
             // Use the prediction with higher confidence
-            let (prediction, confidence) = if sensor.confidence >= image.confidence {
-                (sensor.prediction, sensor.confidence)
+            let (mut prediction, confidence) = if sensor.confidence >= image.confidence {
+                (sensor.prediction.clone(), sensor.confidence)
             } else {
-                (image.prediction, image.confidence)
+                (image.prediction.clone(), image.confidence)
             };
+            
+            // Ensure disease_detected flag is set correctly
+            prediction.disease_detected = is_disease_detected;
             
             // Combine additional info
             let mut additional_info = HashMap::new();

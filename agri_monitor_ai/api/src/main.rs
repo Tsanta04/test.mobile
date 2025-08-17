@@ -34,7 +34,9 @@ async fn main() -> std::io::Result<()> {
     
     // Load configuration
     let config = config::Config::from_env();
-    info!("Starting server at {}:{}", config.host, config.port);
+    let host = config.host.clone();
+    let port = config.port;
+    info!("Starting server at {}:{}", host, port);
     
     // Create shared application state
     let app_state = web::Data::new(AppState { config });
@@ -48,7 +50,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::NormalizePath::trim())
             .configure(routes::configure)
     })
-    .bind(format!("{}:{}", config.host, config.port))?
+    .bind(format!("{}:{}", host, port))?
     .run()
     .await
 }

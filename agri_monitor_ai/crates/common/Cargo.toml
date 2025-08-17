@@ -16,4 +16,6 @@ image = { workspace = true }
 mongodb = { workspace = true }
 influxdb = { workspace = true }
 diesel = { workspace = true }
+rand = { workspace = true }
+async-trait = "0.1.77"
 

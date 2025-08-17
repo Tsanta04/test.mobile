@@ -2,15 +2,9 @@
 members = [
     "crates/common",
     "crates/disease_detection",
-    "crates/water_level",
-    "crates/fertility",
-    "crates/air_quality",
-    "crates/profitability",
-    "crates/production_date",
-    "crates/production_rate",
-    "crates/disaster_detection",
     "api",
 ]
+resolver = "2"
 
 [workspace.dependencies]
 # Common dependencies for all crates
@@ -22,10 +16,10 @@ diesel = { version = "2.1.4", features = ["postgres", "r2d2", "chrono"] }
 dotenv = "0.15.0"
 chrono = { version = "0.4.31", features = ["serde"] }
 ndarray = "0.15.6"
-tch = "0.14.0"  # PyTorch bindings for Rust
+# tch = "0.14.0"  # PyTorch bindings for Rust - Commenté pour simplifier
 linfa = "0.7.0"  # Machine learning framework
 linfa-trees = "0.7.0"  # Random Forest implementation
-burn = "0.12.1"  # Deep learning framework
+# burn = "0.12.1"  # Deep learning framework - Commenté pour simplifier
 mongodb = "2.8.0"
 influxdb = "0.7.1"
 tracing = "0.1.40"

@@ -1,47 +1,71 @@
-# Utiliser l'image officielle Rust comme base
-FROM rust:1.76-slim-bullseye as builder
+# Utilisation d'une image multi-stage pour optimiser la taille de l'image finale
+
+# Étape de build
+FROM rust:1.75 as builder
 
 # Installer les dépendances nécessaires
 RUN apt-get update && \
-    apt-get install -y pkg-config libssl-dev libpq-dev && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y \
+    libssl-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
 
 # Créer un répertoire pour l'application
 WORKDIR /app
 
 # Copier les fichiers Cargo.toml et Cargo.lock
 COPY Cargo.toml Cargo.lock ./
+COPY api/Cargo.toml ./api/
+COPY crates/common/Cargo.toml ./crates/common/
+COPY crates/disease_detection/Cargo.toml ./crates/disease_detection/
 
-# Copier les crates
-COPY crates ./crates
-COPY api ./api
+# Créer des fichiers vides pour tous les fichiers source
+# Cela permet de compiler les dépendances sans le code source
+RUN mkdir -p api/src && \
+    mkdir -p crates/common/src && \
+    mkdir -p crates/disease_detection/src && \
+    touch api/src/lib.rs && \
+    touch crates/common/src/lib.rs && \
+    touch crates/disease_detection/src/lib.rs
 
-# Construire l'application en mode release
-RUN cargo build --release -p api
+# Compiler les dépendances
+RUN cargo build --release
 
-# Créer une image plus légère pour l'exécution
-FROM debian:bullseye-slim
+# Supprimer les fichiers source vides
+RUN rm -rf api/src && \
+    rm -rf crates/common/src && \
+    rm -rf crates/disease_detection/src
+
+# Copier le code source réel
+COPY api/src ./api/src
+COPY crates/common/src ./crates/common/src
+COPY crates/disease_detection/src ./crates/disease_detection/src
+
+# Compiler l'application
+RUN cargo build --release
+
+# Étape finale
+FROM debian:bookworm-slim
 
 # Installer les dépendances d'exécution
 RUN apt-get update && \
-    apt-get install -y libssl-dev libpq-dev ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y \
+    ca-certificates \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Créer un répertoire pour l'application
 WORKDIR /app
 
-# Copier l'exécutable depuis l'étape de construction
-COPY --from=builder /app/target/release/api ./
+# Copier l'exécutable compilé depuis l'étape de build
+COPY --from=builder /app/target/release/api /app/api
 
-# Créer le répertoire des modèles
-RUN mkdir -p models
-
-# Copier le fichier .env.example
-COPY .env.example .env
+# Créer un répertoire pour les modèles
+RUN mkdir -p /app/models
 
 # Exposer le port
 EXPOSE 8080
 
 # Définir la commande d'exécution
-CMD ["./api"]
+CMD ["/app/api"]
 

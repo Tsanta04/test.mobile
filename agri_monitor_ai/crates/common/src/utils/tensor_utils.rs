@@ -4,6 +4,7 @@
 
 use crate::error::{AgriMonitorError, AgriResult};
 use ndarray::{Array1, Array2, ArrayView1, Axis};
+use rand::seq::SliceRandom;
 use std::ops::Range;
 
 /// Normalize an array to the range [0, 1]
@@ -109,7 +110,6 @@ pub fn train_test_split<T: Clone>(
     // Create a shuffled copy of the data
     let mut shuffled = data.to_vec();
     let mut rng = rand::thread_rng();
-    use rand::seq::SliceRandom;
     shuffled.shuffle(&mut rng);
     
     let train = shuffled[..train_size].to_vec();
