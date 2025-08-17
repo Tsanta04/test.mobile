@@ -10,8 +10,8 @@ use crate::types::{
 };
 use chrono::Utc;
 use common::error::{AgriMonitorError, AgriResult};
-use image::{DynamicImage, GenericImageView};
-use ndarray::{Array1, Array2};
+use image::DynamicImage;
+// Suppression des imports inutilisés
 use std::collections::HashMap;
 
 /// Calcule un score de fertilité à partir des niveaux de nutriments
