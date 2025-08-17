@@ -1,0 +1,223 @@
+@startuml InfluxDB Model
+
+' Style
+!define MEASUREMENT_BORDER_COLOR #073B4C
+!define MEASUREMENT_HEADER_COLOR #118AB2
+!define MEASUREMENT_ROW_COLOR #EFF7F6
+!define TAG_COLOR #06D6A0
+!define FIELD_COLOR #EF476F
+!define TIMESTAMP_COLOR #FFD166
+
+skinparam class {
+    BackgroundColor MEASUREMENT_ROW_COLOR
+    BorderColor MEASUREMENT_BORDER_COLOR
+    HeaderBackgroundColor MEASUREMENT_HEADER_COLOR
+}
+
+' Bucket
+package "Bucket: agri_monitor" {
+
+    ' Measurements
+    class "Measurement: sensor_data" as sensor_data {
+        + timestamp : Timestamp
+        --
+        <b>Tags:</b>
+        field_id : UUID
+        sensor_id : String
+        sensor_type : String
+        location_lat : Float
+        location_lon : Float
+        --
+        <b>Fields:</b>
+        soil_moisture : Float
+        air_humidity : Float
+        temperature : Float
+        soil_ph : Float
+        nitrogen : Float
+        phosphorus : Float
+        potassium : Float
+        co2 : Float
+        pm25 : Float
+        pm10 : Float
+        rainfall : Float
+        wind_speed : Float
+        wind_direction : Float
+        solar_radiation : Float
+        battery_level : Float
+    }
+
+    class "Measurement: disease_predictions" as disease_predictions {
+        + timestamp : Timestamp
+        --
+        <b>Tags:</b>
+        field_id : UUID
+        planting_id : UUID
+        disease_type : String
+        model_version : String
+        --
+        <b>Fields:</b>
+        probability : Float
+        severity : Float
+    }
+
+    class "Measurement: water_level_predictions" as water_level_predictions {
+        + timestamp : Timestamp
+        --
+        <b>Tags:</b>
+        field_id : UUID
+        planting_id : UUID
+        model_version : String
+        status : String
+        --
+        <b>Fields:</b>
+        water_level : Float
+        deficit : Float
+        irrigation_needed : Boolean
+    }
+
+    class "Measurement: fertility_predictions" as fertility_predictions {
+        + timestamp : Timestamp
+        --
+        <b>Tags:</b>
+        field_id : UUID
+        planting_id : UUID
+        model_version : String
+        --
+        <b>Fields:</b>
+        fertility_score : Float
+        nitrogen_level : String
+        phosphorus_level : String
+        potassium_level : String
+        ph_level : String
+    }
+
+    class "Measurement: air_quality_predictions" as air_quality_predictions {
+        + timestamp : Timestamp
+        --
+        <b>Tags:</b>
+        field_id : UUID
+        model_version : String
+        category : String
+        --
+        <b>Fields:</b>
+        air_quality_index : Float
+        co2_level : String
+        pm25_level : String
+        pm10_level : String
+    }
+
+    class "Measurement: production_date_predictions" as production_date_predictions {
+        + timestamp : Timestamp
+        --
+        <b>Tags:</b>
+        field_id : UUID
+        planting_id : UUID
+        crop_type : String
+        model_version : String
+        --
+        <b>Fields:</b>
+        days_to_harvest : Integer
+        confidence : Float
+    }
+
+    class "Measurement: production_rate_predictions" as production_rate_predictions {
+        + timestamp : Timestamp
+        --
+        <b>Tags:</b>
+        field_id : UUID
+        planting_id : UUID
+        crop_type : String
+        model_version : String
+        --
+        <b>Fields:</b>
+        estimated_yield_per_ha : Float
+        confidence : Float
+    }
+
+    class "Measurement: disaster_risk_predictions" as disaster_risk_predictions {
+        + timestamp : Timestamp
+        --
+        <b>Tags:</b>
+        field_id : UUID
+        disaster_type : String
+        risk_level : String
+        model_version : String
+        --
+        <b>Fields:</b>
+        probability : Float
+        severity : Float
+    }
+
+    class "Measurement: system_metrics" as system_metrics {
+        + timestamp : Timestamp
+        --
+        <b>Tags:</b>
+        service : String
+        host : String
+        region : String
+        --
+        <b>Fields:</b>
+        cpu_usage : Float
+        memory_usage : Float
+        disk_usage : Float
+        api_requests : Integer
+        prediction_count : Integer
+        error_count : Integer
+        response_time_ms : Float
+    }
+
+    ' Continuous Queries
+    class "CQ: cq_hourly_sensor_data" as cq_hourly_sensor_data {
+        <b>Source:</b> sensor_data
+        <b>Destination:</b> hourly_sensor_data
+        <b>Interval:</b> 1h
+        <b>Group By:</b> field_id, sensor_type
+        --
+        <b>Aggregations:</b>
+        mean(soil_moisture)
+        mean(air_humidity)
+        mean(temperature)
+        mean(soil_ph)
+        min(soil_moisture)
+        max(temperature)
+    }
+
+    class "CQ: cq_daily_sensor_data" as cq_daily_sensor_data {
+        <b>Source:</b> sensor_data
+        <b>Destination:</b> daily_sensor_data
+        <b>Interval:</b> 1d
+        <b>Group By:</b> field_id, sensor_type
+        --
+        <b>Aggregations:</b>
+        mean(soil_moisture)
+        mean(air_humidity)
+        mean(temperature)
+        mean(soil_ph)
+        min(soil_moisture)
+        max(temperature)
+        sum(rainfall)
+    }
+
+    ' Retention Policies
+    class "Retention Policies" as retention_policies {
+        <b>sensor_data:</b> 6 months
+        <b>hourly_sensor_data:</b> 2 years
+        <b>daily_sensor_data:</b> 10 years
+        <b>predictions:</b> 2 years
+        <b>system_metrics:</b> 3 months
+    }
+}
+
+' Relations
+sensor_data --> cq_hourly_sensor_data : aggregated_to
+sensor_data --> cq_daily_sensor_data : aggregated_to
+
+note "Références vers PostgreSQL" as N1
+note "field_id: Référence à fields.id" as N2
+note "planting_id: Référence à plantings.id" as N3
+
+N1 .. N2
+N2 .. N3
+
+@enduml
+

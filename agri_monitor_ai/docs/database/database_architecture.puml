@@ -1,0 +1,112 @@
+@startuml Database Architecture
+
+' Style
+!define COMPONENT_BORDER_COLOR #073B4C
+!define COMPONENT_HEADER_COLOR #118AB2
+!define COMPONENT_ROW_COLOR #EFF7F6
+!define ARROW_COLOR #06D6A0
+!define NOTE_COLOR #EF476F
+!define HIGHLIGHT_COLOR #FFD166
+
+skinparam component {
+    BackgroundColor COMPONENT_ROW_COLOR
+    BorderColor COMPONENT_BORDER_COLOR
+    ArrowColor ARROW_COLOR
+}
+
+skinparam note {
+    BackgroundColor NOTE_COLOR
+    BorderColor COMPONENT_BORDER_COLOR
+    FontColor white
+}
+
+' Components
+package "Architecture de Base de Données Polyglotte" {
+    component "PostgreSQL" as postgres {
+        component "Données Structurées" as postgres_data {
+            component "Utilisateurs"
+            component "Fermes"
+            component "Champs"
+            component "Cultures"
+            component "Plantations"
+            component "Traitements"
+            component "Récoltes"
+            component "Données Économiques"
+        }
+    }
+
+    component "MongoDB" as mongodb {
+        component "Données Non Structurées" as mongodb_data {
+            component "Images"
+            component "Cartes de Distribution"
+            component "Détections de Maladies"
+            component "Analyses Visuelles"
+            component "Évaluations de Dommages"
+        }
+    }
+
+    component "InfluxDB" as influxdb {
+        component "Séries Temporelles" as influxdb_data {
+            component "Données de Capteurs"
+            component "Prédictions Temporelles"
+            component "Métriques Système"
+            component "Agrégations"
+        }
+    }
+}
+
+' Application Components
+component "API Rust (Actix-web)" as api
+component "Modules de Prédiction" as prediction_modules {
+    component "Détection de Maladies"
+    component "Analyse de Taux d'Eau"
+    component "Analyse de Fertilité"
+    component "Analyse de Qualité d'Air"
+    component "Analyse de Rentabilité"
+    component "Prédiction de Date de Production"
+    component "Prédiction de Taux de Production"
+    component "Détection de Catastrophes"
+}
+
+' External Components
+component "Capteurs IoT" as sensors
+component "Drones & Caméras" as cameras
+component "Satellites" as satellites
+component "Applications Client" as client_apps
+
+' Relationships
+sensors --> api : "Envoie données brutes"
+cameras --> api : "Envoie images"
+satellites --> api : "Fournit images"
+api --> client_apps : "Expose endpoints REST"
+
+api --> postgres : "Stocke/Récupère\ndonnées structurées"
+api --> mongodb : "Stocke/Récupère\nimages et cartes"
+api --> influxdb : "Stocke/Récupère\ndonnées temporelles"
+
+api <--> prediction_modules : "Utilise pour\nanalyses"
+
+prediction_modules --> postgres : "Stocke résultats\nd'analyse"
+prediction_modules --> mongodb : "Stocke cartes\net détections"
+prediction_modules --> influxdb : "Stocke prédictions\ntemporelles"
+
+' Integration Points
+note "Intégration via field_id" as note_field_id
+note "Intégration via planting_id" as note_planting_id
+
+postgres -- note_field_id
+mongodb -- note_field_id
+influxdb -- note_field_id
+
+postgres -- note_planting_id
+mongodb -- note_planting_id
+influxdb -- note_planting_id
+
+' Legend
+note "Légende" as legend
+legend -- postgres
+legend -- mongodb
+legend -- influxdb
+
+@enduml
+
