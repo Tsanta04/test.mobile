@@ -9,6 +9,7 @@ use chrono::Utc;
 use common::data::ImageData;
 use common::error::{AgriMonitorError, AgriResult};
 use common::models::Model;
+use async_trait::async_trait;
 use image::{DynamicImage, GenericImageView, ImageBuffer, Rgb};
 use std::collections::HashMap;
 use std::path::Path;
@@ -209,6 +210,7 @@ impl FertilityImageModel {
     }
 }
 
+#[async_trait]
 impl Model for FertilityImageModel {
     /// Charge le modèle à partir d'un fichier
     async fn load(&mut self, path: &str) -> AgriResult<()> {

@@ -8,6 +8,7 @@ use chrono::Utc;
 use common::data::SensorData;
 use common::error::{AgriMonitorError, AgriResult};
 use common::models::Model;
+use async_trait::async_trait;
 use linfa::prelude::*;
 use linfa_trees::{DecisionTree, SplitQuality};
 use ndarray::{Array1, Array2};
@@ -305,6 +306,7 @@ impl FertilitySensorModel {
     }
 }
 
+#[async_trait]
 impl Model for FertilitySensorModel {
     /// Charge le modèle à partir d'un fichier
     async fn load(&mut self, path: &str) -> AgriResult<()> {
@@ -350,4 +352,3 @@ impl Default for FertilitySensorModel {
         Self::new()
     }
 }
-

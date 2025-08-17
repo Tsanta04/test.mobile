@@ -9,6 +9,7 @@ mod tests {
         SoilFertilityStatus,
     };
     use crate::utils;
+    use common::models::Model;
     use chrono::Utc;
     use std::collections::HashMap;
 
@@ -186,4 +187,3 @@ mod tests {
         assert!((ndvi[3] - 0.3333333).abs() < 0.0001); // (0.8 - 0.4) / (0.8 + 0.4)
     }
 }
-
