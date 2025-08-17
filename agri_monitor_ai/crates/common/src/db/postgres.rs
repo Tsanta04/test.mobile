@@ -4,7 +4,7 @@
 
 use crate::error::AgriResult;
 use serde::Deserialize;
-use std::collections::HashMap;
+// Suppression de l'import inutilisé
 
 // Placeholder for PostgreSQL client
 // In a real implementation, this would use the diesel crate

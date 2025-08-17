@@ -3,7 +3,7 @@
 //! This module provides utility functions for working with tensors and arrays.
 
 use crate::error::{AgriMonitorError, AgriResult};
-use ndarray::{Array1, Array2, ArrayView1, Axis};
+use ndarray::{Array1, Array2, ArrayView1};
 use rand::seq::SliceRandom;
 use std::ops::Range;
 
@@ -117,4 +117,3 @@ pub fn train_test_split<T: Clone>(
     
     Ok((train, test))
 }
-
