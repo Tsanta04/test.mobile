@@ -4,6 +4,7 @@
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::path::PathBuf;
 
 /// Sensor data input for raw data predictions
@@ -15,47 +16,15 @@ pub struct SensorData {
     /// Location of the sensor (latitude, longitude)
     pub location: GeoLocation,
     
-    /// Soil moisture percentage (0-100)
-    pub soil_moisture: Option<f32>,
-    
-    /// Air humidity percentage (0-100)
-    pub air_humidity: Option<f32>,
-    
-    /// Temperature in Celsius
-    pub temperature: Option<f32>,
-    
-    /// Soil pH level (0-14)
-    pub soil_ph: Option<f32>,
-    
-    /// Nitrogen level in soil (ppm)
-    pub nitrogen: Option<f32>,
-    
-    /// Phosphorus level in soil (ppm)
-    pub phosphorus: Option<f32>,
-    
-    /// Potassium level in soil (ppm)
-    pub potassium: Option<f32>,
-    
-    /// Carbon dioxide level in air (ppm)
-    pub co2: Option<f32>,
-    
-    /// PM2.5 particulate matter in air (μg/m³)
-    pub pm25: Option<f32>,
-    
-    /// PM10 particulate matter in air (μg/m³)
-    pub pm10: Option<f32>,
-    
-    /// Wind speed (m/s)
-    pub wind_speed: Option<f32>,
-    
-    /// Rainfall amount (mm)
-    pub rainfall: Option<f32>,
-    
-    /// Solar radiation (W/m²)
-    pub solar_radiation: Option<f32>,
-    
-    /// Additional sensor data as key-value pairs
-    pub additional_data: std::collections::HashMap<String, f32>,
+    /// Values from various sensors as key-value pairs
+    pub values: HashMap<String, String>,
+}
+
+impl SensorData {
+    /// Get a value from the sensor data
+    pub fn get_value(&self, key: &str) -> Option<&String> {
+        self.values.get(key)
+    }
 }
 
 /// Image data input for image-based predictions
@@ -67,17 +36,11 @@ pub struct ImageData {
     /// Location where the image was captured
     pub location: GeoLocation,
     
-    /// Path to the image file
-    pub image_path: PathBuf,
+    /// Raw image data
+    pub image: Vec<u8>,
     
-    /// Image type (RGB, multispectral, etc.)
-    pub image_type: ImageType,
-    
-    /// Image resolution (width, height)
-    pub resolution: (u32, u32),
-    
-    /// Additional metadata as key-value pairs
-    pub metadata: std::collections::HashMap<String, String>,
+    /// Image type (format)
+    pub image_type: String,
 }
 
 /// Geographic location
@@ -88,28 +51,6 @@ pub struct GeoLocation {
     
     /// Longitude in decimal degrees
     pub longitude: f64,
-    
-    /// Altitude in meters (optional)
-    pub altitude: Option<f64>,
-}
-
-/// Image type enum
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub enum ImageType {
-    /// RGB image (standard color)
-    RGB,
-    
-    /// Multispectral image
-    Multispectral,
-    
-    /// Thermal image
-    Thermal,
-    
-    /// Satellite image
-    Satellite,
-    
-    /// Drone image
-    Drone,
 }
 
 /// Prediction result with confidence
@@ -125,25 +66,6 @@ pub struct PredictionResult<T> {
     pub confidence: f32,
     
     /// Additional information about the prediction
-    pub additional_info: std::collections::HashMap<String, String>,
-}
-
-/// Alert level enum
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
-pub enum AlertLevel {
-    /// No alert
-    None,
-    
-    /// Low alert level
-    Low,
-    
-    /// Medium alert level
-    Medium,
-    
-    /// High alert level
-    High,
-    
-    /// Critical alert level
-    Critical,
+    pub additional_info: HashMap<String, String>,
 }
 

@@ -1,6 +1,7 @@
-//! API handlers
+//! Handlers pour les endpoints de l'API
 //!
-//! This module provides handlers for API endpoints.
+//! Ce module contient les handlers pour tous les endpoints de l'API.
 
 pub mod disease_detection;
+pub mod water_level;
 

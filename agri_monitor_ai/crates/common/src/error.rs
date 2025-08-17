@@ -11,6 +11,14 @@ pub enum AgriMonitorError {
     #[error("Failed to load model: {0}")]
     ModelLoadError(String),
 
+    /// Error when model is not loaded
+    #[error("Model not loaded: {0}")]
+    ModelNotLoaded(String),
+
+    /// Error when training model
+    #[error("Failed to train model: {0}")]
+    ModelTrainingError(String),
+
     /// Error when making predictions
     #[error("Failed to make prediction: {0}")]
     PredictionError(String),
@@ -34,6 +42,10 @@ pub enum AgriMonitorError {
     /// Error when validating input
     #[error("Input validation error: {0}")]
     ValidationError(String),
+
+    /// Error when input is invalid
+    #[error("Invalid input: {0}")]
+    InvalidInput(String),
 
     /// Generic error
     #[error("Error: {0}")]

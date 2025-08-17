@@ -8,6 +8,16 @@ use crate::error::AgriResult;
 use async_trait::async_trait;
 use std::path::Path;
 
+/// Trait for models that can be loaded and saved
+#[async_trait]
+pub trait Model {
+    /// Load the model from a file
+    async fn load(&mut self, path: &str) -> AgriResult<()>;
+    
+    /// Save the model to a file
+    async fn save(&self, path: &str) -> AgriResult<()>;
+}
+
 /// Trait for models that make predictions from raw sensor data
 #[async_trait]
 pub trait SensorDataModel<T> {

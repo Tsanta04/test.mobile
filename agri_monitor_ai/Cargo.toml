@@ -2,6 +2,7 @@
 members = [
     "crates/common",
     "crates/disease_detection",
+    "crates/water_level",
     "api",
 ]
 resolver = "2"
