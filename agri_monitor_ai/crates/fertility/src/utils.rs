@@ -10,7 +10,7 @@ use crate::types::{
 };
 use chrono::Utc;
 use common::error::{AgriMonitorError, AgriResult};
-use image::DynamicImage;
+// Suppression de l'import inutilisé
 // Suppression des imports inutilisés
 use std::collections::HashMap;
 
@@ -151,7 +151,7 @@ pub fn calculate_fertilization_recommendation(
 }
 
 /// Calcule le déficit en nutriment
-fn calculate_nutrient_deficit(current_level: f32, requirement: f32) -> f32 {
+pub fn calculate_nutrient_deficit(current_level: f32, requirement: f32) -> f32 {
     let deficit = requirement - current_level;
     if deficit > 0.0 {
         deficit
