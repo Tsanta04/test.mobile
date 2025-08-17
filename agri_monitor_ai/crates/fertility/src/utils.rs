@@ -175,7 +175,7 @@ pub fn determine_fertilization_priority(
         FertilizationPriority::High
     } else if n_ratio < 0.6 || p_ratio < 0.6 || k_ratio < 0.6 {
         FertilizationPriority::Medium
-    } else if n_ratio < 0.8 || p_ratio < 0.8 || k_ratio < 0.8 {
+    } else if n_ratio < 0.9 || p_ratio < 0.9 || k_ratio < 0.9 {
         FertilizationPriority::Low
     } else {
         FertilizationPriority::None
