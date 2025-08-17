@@ -9,13 +9,13 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=8080
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/agri_monitor
-      - INFLUXDB_URL=http://influxdb:8086
-      - INFLUXDB_ORG=agri_monitor
-      - INFLUXDB_BUCKET=sensor_data
-      - INFLUXDB_TOKEN=my-token
-      - MONGODB_URI=mongodb://mongodb:27017
-      - MONGODB_DB=agri_monitor
+      - DATABASE_URL=${DATABASE_URL:-postgres://postgres:postgres@postgres:5432/agri_monitor}
+      - INFLUXDB_URL=${INFLUXDB_URL:-http://influxdb:8086}
+      - INFLUXDB_ORG=${INFLUXDB_ORG:-agri_monitor}
+      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET:-sensor_data}
+      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN:-my-token}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017}
+      - MONGODB_DB=${MONGODB_DB:-agri_monitor}
       - MODELS_DIR=/app/models
       - RUST_LOG=info
     volumes:
@@ -30,9 +30,9 @@ services:
   postgres:
     image: postgres:14
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=agri_monitor
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-agri_monitor}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -44,11 +44,11 @@ services:
     image: influxdb:2.7
     environment:
       - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=adminpassword
-      - DOCKER_INFLUXDB_INIT_ORG=agri_monitor
-      - DOCKER_INFLUXDB_INIT_BUCKET=sensor_data
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-token
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_ADMIN_USER:-admin}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_ADMIN_PASSWORD:-adminpassword}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG:-agri_monitor}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET:-sensor_data}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN:-my-token}
     volumes:
       - influxdb_data:/var/lib/influxdb2
     ports:
@@ -59,7 +59,7 @@ services:
   mongodb:
     image: mongo:6
     environment:
-      - MONGO_INITDB_DATABASE=agri_monitor
+      - MONGO_INITDB_DATABASE=${MONGODB_DB:-agri_monitor}
     volumes:
       - mongodb_data:/data/db
     ports:
