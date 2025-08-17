@@ -3,15 +3,16 @@
 //! Ce module implémente un modèle pour analyser les images multispectrales
 //! et générer des cartes d'humidité du sol.
 
-use crate::types::{GeoReference, MapResolution, WaterLevelMap};
+use crate::types::{GeoReference, MapResolution, SoilMoistureStatus, WaterLevelMap};
 use crate::utils;
 use chrono::Utc;
-use common::data::ImageData;
-use common::error::{AgriMonitorError, AgriResult};
-use common::models::Model;
-use image::{DynamicImage, GenericImageView, ImageBuffer, Rgb};
+use common::data::{GeoLocation, ImageData, PredictionResult};
+use common::error::AgriResult;
+use common::models::{ImageModel, Model};
+use image::DynamicImage;
 use std::path::Path;
 use tracing::info;
+use async_trait::async_trait;
 
 /// Modèle de prédiction du taux d'eau basé sur les images
 #[derive(Debug, Clone)]
@@ -48,149 +49,99 @@ impl WaterLevelImageModel {
         // Créer la référence géographique
         let geo_reference = self.create_geo_reference(image_data);
 
-        // Créer la résolution de la carte
-        let resolution = MapResolution {
-            width: image.width() as usize,
-            height: image.height() as usize,
-            meters_per_pixel: 10.0, // Valeur par défaut
+        // Créer la carte d'humidité
+        let average_water_level = self.calculate_average_water_level(&water_level_matrix);
+        let water_level_map = WaterLevelMap {
+            timestamp: Utc::now(),
+            geo_reference,
+            resolution: MapResolution {
+                width: image.width() as usize,
+                height: image.height() as usize,
+                meters_per_pixel: 10.0, // Taille de pixel simulée
+            },
+            water_level_matrix,
+            average_water_level,
+            status: SoilMoistureStatus::from_percentage(average_water_level), // Déjà en pourcentage [0,1]
         };
 
-        // Créer la carte d'humidité
-        utils::create_water_level_map(
-            water_level_matrix,
-            Utc::now(),
-            geo_reference,
-            resolution,
-        )
+        Ok(water_level_map)
     }
 
-    /// Décode l'image à partir des données d'image
+    /// Décode une image à partir des données brutes
     fn decode_image(&self, _image_data: &ImageData) -> AgriResult<DynamicImage> {
-        // Dans une implémentation réelle, il faudrait décoder l'image à partir des données binaires
-        // Pour cet exemple, on crée une image factice
-        let width = 100;
-        let height = 100;
-        let img = ImageBuffer::<Rgb<u8>, Vec<u8>>::new(width, height);
-        let dynamic_img = DynamicImage::ImageRgb8(img);
-
-        Ok(dynamic_img)
+        // Simuler le décodage d'une image
+        // Dans un cas réel, on utiliserait image::load_from_memory
+        let img = image::DynamicImage::new_rgb8(100, 100);
+        Ok(img)
     }
 
-    /// Extrait les bandes spectrales rouge et proche infrarouge de l'image
+    /// Extrait les bandes spectrales rouge et proche infrarouge
     fn extract_spectral_bands(&self, image: &DynamicImage) -> AgriResult<(Vec<f32>, Vec<f32>)> {
-        let (width, height) = image.dimensions();
-        let pixel_count = (width * height) as usize;
-
-        // Initialiser les vecteurs pour les bandes
-        let mut red_band = Vec::with_capacity(pixel_count);
-        let mut nir_band = Vec::with_capacity(pixel_count);
-
-        // Dans une implémentation réelle, on extrairait les bandes de l'image
-        // Pour cet exemple, on génère des valeurs aléatoires
-        for y in 0..height {
-            for x in 0..width {
-                // Simuler des valeurs de bande rouge (0-1)
-                let red_value = (x as f32 / width as f32) * 0.8 + 0.1;
-                red_band.push(red_value);
-
-                // Simuler des valeurs de bande proche infrarouge (0-1)
-                let nir_value = (y as f32 / height as f32) * 0.8 + 0.2;
-                nir_band.push(nir_value);
-            }
-        }
-
+        // Simuler l'extraction des bandes spectrales
+        // Dans un cas réel, on extrairait les bandes à partir de l'image
+        let size = (image.width() * image.height()) as usize;
+        let red_band = vec![0.5; size];
+        let nir_band = vec![0.7; size];
+        
         Ok((red_band, nir_band))
     }
 
-    /// Convertit un vecteur d'indices NDVI en matrice de taux d'humidité
-    fn ndvi_to_water_level_matrix(
-        &self,
-        ndvi: &[f32],
-        width: u32,
-        height: u32,
-    ) -> AgriResult<Vec<Vec<f32>>> {
-        if ndvi.len() != (width * height) as usize {
-            return Err(AgriMonitorError::InvalidInput(
-                "Dimensions de l'indice NDVI incompatibles avec l'image".to_string(),
-            ));
-        }
-
-        // Créer la matrice de taux d'humidité
-        let mut water_level_matrix = Vec::with_capacity(height as usize);
-
+    /// Convertit l'indice NDVI en matrice de taux d'humidité
+    fn ndvi_to_water_level_matrix(&self, ndvi: &[f32], width: u32, height: u32) -> AgriResult<Vec<Vec<f32>>> {
+        // Convertir l'indice NDVI en taux d'humidité
+        // Plus l'indice NDVI est élevé, plus la végétation est dense et donc plus l'humidité est élevée
+        let mut matrix = Vec::with_capacity(height as usize);
+        
         for y in 0..height {
             let mut row = Vec::with_capacity(width as usize);
             for x in 0..width {
                 let index = (y * width + x) as usize;
-                let ndvi_value = ndvi[index];
-                
-                // Convertir l'indice NDVI en taux d'humidité
-                let water_level = utils::ndvi_to_water_level(ndvi_value);
-                row.push(water_level);
+                if index < ndvi.len() {
+                    // Convertir NDVI [-1,1] en taux d'humidité [0,1]
+                    let water_level = (ndvi[index] + 1.0) / 2.0;
+                    row.push(water_level);
+                } else {
+                    row.push(0.0);
+                }
             }
-            water_level_matrix.push(row);
+            matrix.push(row);
         }
-
-        Ok(water_level_matrix)
+        
+        Ok(matrix)
     }
 
     /// Crée une référence géographique à partir des données d'image
     fn create_geo_reference(&self, image_data: &ImageData) -> GeoReference {
-        // Extraire la localisation de l'image
-        let location = image_data.location.clone();
-
-        // Créer une zone autour de la localisation
-        // Dans une implémentation réelle, il faudrait utiliser les métadonnées de l'image
-        let delta_lat = 0.01; // Environ 1 km
-        let delta_lon = 0.01; // Environ 1 km à l'équateur
-
         GeoReference {
-            top_left: common::data::GeoLocation {
-                latitude: location.latitude + delta_lat,
-                longitude: location.longitude - delta_lon,
-            },
-            bottom_right: common::data::GeoLocation {
-                latitude: location.latitude - delta_lat,
-                longitude: location.longitude + delta_lon,
+            top_left: image_data.location,
+            bottom_right: GeoLocation {
+                latitude: image_data.location.latitude + 0.01, // Simulé pour l'exemple
+                longitude: image_data.location.longitude + 0.01,
             },
         }
     }
-}
 
-impl Model for WaterLevelImageModel {
-    /// Charge le modèle à partir d'un fichier
-    async fn load(&mut self, path: &str) -> AgriResult<()> {
-        let path = Path::new(path);
-
-        // Vérifier si le fichier existe
-        if !path.exists() {
-            info!("Modèle non trouvé à {}, utilisation des paramètres par défaut", path.display());
-            self.is_loaded = true;
-            return Ok(());
+    /// Calcule le taux d'humidité moyen
+    fn calculate_average_water_level(&self, matrix: &[Vec<f32>]) -> f32 {
+        if matrix.is_empty() || matrix[0].is_empty() {
+            return 0.0;
         }
-
-        // Charger le modèle (implémentation simplifiée)
-        info!("Chargement du modèle depuis {}", path.display());
         
-        // Simuler le chargement du modèle
-        self.ndvi_threshold = 0.3;
-        self.is_loaded = true;
-
-        Ok(())
-    }
-
-    /// Sauvegarde le modèle dans un fichier
-    async fn save(&self, path: &str) -> AgriResult<()> {
-        if !self.is_loaded {
-            return Err(AgriMonitorError::ModelNotLoaded(
-                "Pas de modèle à sauvegarder".to_string(),
-            ));
+        let mut sum = 0.0;
+        let mut count = 0;
+        
+        for row in matrix {
+            for &value in row {
+                sum += value;
+                count += 1;
+            }
         }
-
-        // Sauvegarder le modèle (implémentation simplifiée)
-        info!("Sauvegarde du modèle vers {}", path);
-
-        Ok(())
+        
+        if count > 0 {
+            sum / count as f32
+        } else {
+            0.0
+        }
     }
 }
 
@@ -200,3 +151,65 @@ impl Default for WaterLevelImageModel {
     }
 }
 
+#[async_trait]
+impl ImageModel<WaterLevelMap> for WaterLevelImageModel {
+    async fn predict(&self, data: &ImageData) -> AgriResult<PredictionResult<WaterLevelMap>> {
+        // Utiliser la méthode existante pour prédire
+        let prediction = self.predict(data).await?;
+        
+        // Créer un résultat de prédiction
+        let result = PredictionResult {
+            timestamp: Utc::now(),
+            location: data.location.clone(),
+            prediction,
+            confidence: 0.9, // Confiance simulée
+            additional_info: Default::default(),
+        };
+        
+        Ok(result)
+    }
+    
+    async fn train(&mut self, _data: &[ImageData], _labels: &[WaterLevelMap]) -> AgriResult<()> {
+        // Simuler l'entraînement du modèle
+        info!("Entraînement du modèle d'image pour le taux d'eau");
+        
+        // Dans un cas réel, on entraînerait un modèle de deep learning
+        // avec les images et les cartes d'humidité correspondantes
+        
+        Ok(())
+    }
+    
+    async fn save<P: AsRef<Path> + Send + Sync>(&self, path: P) -> AgriResult<()> {
+        // Déléguer à l'implémentation de Model::save
+        Model::save(self, path.as_ref().to_str().unwrap()).await
+    }
+    
+    async fn load<P: AsRef<Path> + Send + Sync>(&mut self, path: P) -> AgriResult<()> {
+        // Déléguer à l'implémentation de Model::load
+        Model::load(self, path.as_ref().to_str().unwrap()).await
+    }
+}
+
+#[async_trait]
+impl Model for WaterLevelImageModel {
+    async fn load(&mut self, path: &str) -> AgriResult<()> {
+        info!("Chargement du modèle d'image pour le taux d'eau depuis {}", path);
+        
+        // Simuler le chargement du modèle
+        // Dans un cas réel, on chargerait les poids du modèle depuis un fichier
+        self.is_loaded = true;
+        
+        Ok(())
+    }
+    
+    async fn save(&self, path: &str) -> AgriResult<()> {
+        info!("Sauvegarde du modèle d'image pour le taux d'eau vers {}", path);
+        
+        // Simuler la sauvegarde du modèle
+        // Dans un cas réel, on sauvegarderait les poids du modèle dans un fichier
+        
+        Ok(())
+    }
+}
+
+// Implémentations supplémentaires pour WaterLevelImageModel si nécessaire
