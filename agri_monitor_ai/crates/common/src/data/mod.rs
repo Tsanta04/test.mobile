@@ -59,6 +59,9 @@ pub struct PredictionResult<T> {
     /// Timestamp of the prediction
     pub timestamp: DateTime<Utc>,
     
+    /// Location of the prediction
+    pub location: GeoLocation,
+    
     /// Predicted value
     pub prediction: T,
     
@@ -66,5 +69,6 @@ pub struct PredictionResult<T> {
     pub confidence: f32,
     
     /// Additional information about the prediction
+    #[serde(default)]
     pub additional_info: HashMap<String, String>,
 }

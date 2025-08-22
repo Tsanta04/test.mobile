@@ -3,8 +3,9 @@
 //! Ce module contient les handlers pour les endpoints de l'API liés au taux d'eau.
 
 use actix_web::{web, HttpResponse, Responder};
-use common::error::AgriResult;
-use serde::{Deserialize, Serialize};
+// use common::error::AgriResult; // Commenté car non utilisé
+// use serde::{Deserialize, Serialize}; // Commenté car non utilisé
+use serde_json::json;
 use water_level::{
     WaterLevelPredictor,
     types::{SensorPredictionRequest, ImagePredictionRequest},
@@ -130,4 +131,3 @@ pub async fn get_recommendations(
         },
     }))
 }
-

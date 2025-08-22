@@ -5,7 +5,8 @@
 use crate::models::{ApiResponse, DiseaseDetectionImageRequest, DiseaseDetectionResponse, DiseaseDetectionSensorRequest};
 use actix_web::{web, HttpResponse};
 use chrono::Utc;
-use common::data::{GeoLocation, ImageData, ImageType, SensorData};
+use common::data::{GeoLocation, SensorData}; // ImageData, ImageType retirés car non utilisés
+use common::models::SensorDataModel;
 use disease_detection::{
     models::{image_model::DiseaseImageModel, sensor_model::DiseaseSensorModel},
     types::DiseaseType,
@@ -15,7 +16,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use tracing::{error, info};
+use tracing::error; // info retiré car non utilisé
 
 /// Shared state for disease detection handlers
 pub struct DiseaseDetectionState {
@@ -49,7 +50,6 @@ impl DiseaseDetectionState {
             Ok((sensor_model, image_model)) => (sensor_model, image_model),
             Err(e) => {
                 error!("Failed to load models: {}", e);
-                // Create default models
                 (DiseaseSensorModel::default(), DiseaseImageModel::default())
             }
         };
@@ -61,6 +61,61 @@ impl DiseaseDetectionState {
     }
 }
 
+/// Helper function to convert API request to SensorData
+fn convert_additional_data_to_values(request: &DiseaseDetectionSensorRequest) -> HashMap<String, String> {
+    let mut values = HashMap::new();
+    
+    // Add all sensor values to the map
+    if let Some(val) = request.soil_moisture {
+        values.insert("soil_moisture".to_string(), val.to_string());
+    }
+    if let Some(val) = request.air_humidity {
+        values.insert("air_humidity".to_string(), val.to_string());
+    }
+    if let Some(val) = request.temperature {
+        values.insert("temperature".to_string(), val.to_string());
+    }
+    if let Some(val) = request.soil_ph {
+        values.insert("soil_ph".to_string(), val.to_string());
+    }
+    if let Some(val) = request.nitrogen {
+        values.insert("nitrogen".to_string(), val.to_string());
+    }
+    if let Some(val) = request.phosphorus {
+        values.insert("phosphorus".to_string(), val.to_string());
+    }
+    if let Some(val) = request.potassium {
+        values.insert("potassium".to_string(), val.to_string());
+    }
+    if let Some(val) = request.co2 {
+        values.insert("co2".to_string(), val.to_string());
+    }
+    if let Some(val) = request.pm25 {
+        values.insert("pm25".to_string(), val.to_string());
+    }
+    if let Some(val) = request.pm10 {
+        values.insert("pm10".to_string(), val.to_string());
+    }
+    if let Some(val) = request.wind_speed {
+        values.insert("wind_speed".to_string(), val.to_string());
+    }
+    if let Some(val) = request.rainfall {
+        values.insert("rainfall".to_string(), val.to_string());
+    }
+    if let Some(val) = request.solar_radiation {
+        values.insert("solar_radiation".to_string(), val.to_string());
+    }
+    
+    // Add additional data
+    if let Some(additional_data) = &request.additional_data {
+        for (key, value) in additional_data {
+            values.insert(key.clone(), value.to_string());
+        }
+    }
+    
+    values
+}
+
 /// Handler for disease detection with sensor data
 pub async fn detect_disease_sensor(
     state: web::Data<DiseaseDetectionState>,
@@ -68,53 +123,46 @@ pub async fn detect_disease_sensor(
 ) -> HttpResponse {
     let request = request.into_inner();
     
-    // Convert request to SensorData
+    // Create sensor data from request
     let sensor_data = SensorData {
         timestamp: request.timestamp.unwrap_or_else(Utc::now),
         location: GeoLocation {
             latitude: request.latitude,
             longitude: request.longitude,
-            altitude: None,
         },
-        soil_moisture: request.soil_moisture,
-        air_humidity: request.air_humidity,
-        temperature: request.temperature,
-        soil_ph: request.soil_ph,
-        nitrogen: request.nitrogen,
-        phosphorus: request.phosphorus,
-        potassium: request.potassium,
-        co2: request.co2,
-        pm25: request.pm25,
-        pm10: request.pm10,
-        wind_speed: request.wind_speed,
-        rainfall: request.rainfall,
-        solar_radiation: request.solar_radiation,
-        additional_data: request.additional_data.unwrap_or_default(),
+        values: convert_additional_data_to_values(&request),
     };
     
     // Get models
     let sensor_model = state.sensor_model.lock().await;
-    let image_model = state.image_model.lock().await;
     
-    // Detect disease
-    match utils::detect_disease(&sensor_model, &image_model, Some(&sensor_data), None).await {
+    // Predict disease
+    match sensor_model.predict(&sensor_data).await {
         Ok(result) => {
-            // Convert result to response
+            // Convert to API response
             let response = DiseaseDetectionResponse {
+                timestamp: result.timestamp,
                 disease_detected: result.prediction.disease_detected,
-                disease_type: result.prediction.disease_type.map(|d| format!("{:?}", d)),
+                disease_type: match result.prediction.disease_type {
+                    Some(DiseaseType::Bacterial(_)) => Some("bacterial".to_string()),
+                    Some(DiseaseType::Fungal(_)) => Some("fungal".to_string()),
+                    Some(DiseaseType::Viral(_)) => Some("viral".to_string()),
+                    Some(DiseaseType::Pest(_)) => Some("pest".to_string()),
+                    Some(DiseaseType::NutrientDeficiency(_)) => Some("nutrient_deficiency".to_string()),
+                    Some(DiseaseType::Other(s)) => Some(format!("other: {}", s)),
+                    None => None,
+                },
                 severity: result.prediction.severity,
                 affected_area: result.prediction.affected_area,
                 confidence: result.confidence,
                 recommendations: result.prediction.recommendations,
                 additional_info: result.additional_info,
-                timestamp: result.timestamp,
             };
             
             HttpResponse::Ok().json(ApiResponse::success(response))
         }
         Err(e) => {
-            error!("Failed to detect disease: {}", e);
+            error!("Failed to predict disease: {}", e);
             HttpResponse::InternalServerError().json(ApiResponse::<()>::error(e.to_string()))
         }
     }
@@ -122,37 +170,13 @@ pub async fn detect_disease_sensor(
 
 /// Handler for disease detection with image data
 pub async fn detect_disease_image(
-    state: web::Data<DiseaseDetectionState>,
-    request: web::Json<DiseaseDetectionImageRequest>,
+    _state: web::Data<DiseaseDetectionState>,
+    _request: web::Json<DiseaseDetectionImageRequest>,
 ) -> HttpResponse {
-    let request = request.into_inner();
+    // This is a placeholder for the image-based disease detection
+    // In a real implementation, this would process the image and use the image model
     
-    // In a real implementation, we would:
-    // 1. Decode the base64 image data
-    // 2. Save it to a temporary file
-    // 3. Create an ImageData struct with the file path
-    
-    // For this example, we'll just return a mock response
-    let response = DiseaseDetectionResponse {
-        disease_detected: true,
-        disease_type: Some("Fungal(PowderyMildew)".to_string()),
-        severity: 0.8,
-        affected_area: Some(0.3),
-        confidence: 0.9,
-        recommendations: vec![
-            "Remove and destroy infected plant parts".to_string(),
-            "Apply appropriate fungicide".to_string(),
-            "Ensure good air circulation".to_string(),
-        ],
-        additional_info: HashMap::new(),
-        timestamp: Utc::now(),
-    };
-    
-    HttpResponse::Ok().json(ApiResponse::success(response))
+    HttpResponse::NotImplemented().json(ApiResponse::<()>::error(
+        "Image-based disease detection not implemented yet".to_string(),
+    ))
 }
-
-/// Handler for health check
-pub async fn health_check() -> HttpResponse {
-    HttpResponse::Ok().json(ApiResponse::success("Disease detection service is healthy"))
-}
-

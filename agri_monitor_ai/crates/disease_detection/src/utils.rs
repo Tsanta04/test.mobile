@@ -3,7 +3,7 @@
 //! This module provides utility functions for disease detection.
 
 use crate::models::{image_model::DiseaseImageModel, sensor_model::DiseaseSensorModel};
-use crate::types::{DiseaseDetection, DiseaseType};
+use crate::types::DiseaseDetection;
 use common::{
     data::{ImageData, PredictionResult, SensorData},
     error::{AgriMonitorError, AgriResult},
@@ -85,6 +85,7 @@ fn combine_predictions(
             // Create combined prediction result
             let result = PredictionResult {
                 timestamp,
+                location: sensor.location, // Use sensor location
                 prediction,
                 confidence,
                 additional_info,
@@ -150,4 +151,3 @@ pub async fn save_models<P: AsRef<Path> + Send + Sync>(
     
     Ok(())
 }
-

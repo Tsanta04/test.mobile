@@ -10,7 +10,7 @@ mod routes;
 
 use actix_web::{middleware, web, App, HttpServer};
 use dotenv::dotenv;
-use std::sync::Arc;
+// use std::sync::Arc; // Commenté car non utilisé
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 
@@ -48,10 +48,9 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .wrap(middleware::Compress::default())
             .wrap(middleware::NormalizePath::trim())
-            .configure(routes::configure)
+            .configure(routes::configure_routes)
     })
     .bind(format!("{}:{}", host, port))?
     .run()
     .await
 }
-

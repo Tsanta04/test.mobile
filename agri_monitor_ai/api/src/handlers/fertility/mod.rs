@@ -3,7 +3,7 @@
 //! Ce module contient les handlers pour les endpoints de l'API liés à la fertilité du sol.
 
 use actix_web::{web, HttpResponse, Responder};
-use common::error::AgriResult;
+// use common::error::AgriResult; // Commenté car non utilisé
 use serde_json::json;
 use fertility::{
     FertilityPredictor,
@@ -156,4 +156,3 @@ pub async fn get_recommendations(
         },
     }))
 }
-

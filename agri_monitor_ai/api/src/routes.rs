@@ -3,7 +3,7 @@
 //! Ce module définit toutes les routes de l'API et leur configuration.
 
 use crate::handlers::{
-    disease_detection::{predict_from_image as disease_predict_image, predict_from_sensor as disease_predict_sensor},
+    disease_detection::{detect_disease_image as disease_predict_image, detect_disease_sensor as disease_predict_sensor},
     water_level::{predict_from_image as water_predict_image, predict_from_sensor as water_predict_sensor, get_history as water_get_history, get_recommendations as water_get_recommendations},
     fertility::{predict_from_image as fertility_predict_image, predict_from_sensor as fertility_predict_sensor, get_history as fertility_get_history, get_recommendations as fertility_get_recommendations},
 };
@@ -37,4 +37,3 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
             )
     );
 }
-

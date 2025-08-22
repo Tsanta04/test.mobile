@@ -4,7 +4,6 @@
 //! plant diseases using images.
 
 use crate::types::{DiseaseDetection, DiseaseType};
-use async_trait::async_trait;
 use common::{
     data::{ImageData, PredictionResult},
     error::{AgriMonitorError, AgriResult},
@@ -14,7 +13,7 @@ use common::{
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
-use tracing::{debug, info};
+use tracing::info;
 
 /// Simplified model for disease detection from images
 #[derive(Debug, Serialize, Deserialize)]
@@ -92,8 +91,9 @@ impl DiseaseImageModel {
     
     /// Preprocess an image for the model
     fn preprocess_image(&self, image_data: &ImageData) -> AgriResult<Vec<f32>> {
-        // Load the image
-        let image = image_utils::load_image(&image_data.image_path)?;
+        // Load the image from binary data
+        let image = image::load_from_memory(&image_data.image)
+            .map_err(|e| AgriMonitorError::ImageProcessingError(format!("Failed to load image: {}", e)))?;
         
         // Resize the image to the input size
         let resized = image_utils::resize_image(&image, self.input_size.0 as u32, self.input_size.1 as u32);
@@ -187,7 +187,7 @@ impl DiseaseImageModel {
     }
 }
 
-#[async_trait]
+#[async_trait::async_trait]
 impl ImageModel<DiseaseDetection> for DiseaseImageModel {
     async fn predict(&self, data: &ImageData) -> AgriResult<PredictionResult<DiseaseDetection>> {
         if !self.is_loaded {
@@ -232,6 +232,7 @@ impl ImageModel<DiseaseDetection> for DiseaseImageModel {
         // Create prediction result
         let result = PredictionResult {
             timestamp: data.timestamp,
+            location: data.location.clone(),
             prediction: disease_detection,
             confidence: confidence_value,
             additional_info: HashMap::new(),
@@ -284,4 +285,3 @@ impl ImageModel<DiseaseDetection> for DiseaseImageModel {
         Ok(())
     }
 }
-

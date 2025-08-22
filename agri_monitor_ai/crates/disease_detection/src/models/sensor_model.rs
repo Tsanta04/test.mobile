@@ -4,19 +4,19 @@
 //! using sensor data (soil moisture, temperature, etc.).
 
 use crate::types::{DiseaseDetection, DiseaseType};
-use async_trait::async_trait;
+// use async_trait::async_trait; // Commenté car non utilisé
 use common::{
     data::{PredictionResult, SensorData},
     error::{AgriMonitorError, AgriResult},
     models::SensorDataModel,
 };
-use linfa::prelude::*;
-use linfa_trees::{DecisionTree, SplitQuality};
-use ndarray::{Array1, Array2, Axis};
+use linfa_trees::{DecisionTree}; // SplitQuality retiré car non utilisé
+use ndarray::Array1;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
-use tracing::{debug, info};
+use tracing::info;
+// use rand::Rng; // Commenté car non utilisé
 
 /// Random Forest model for disease detection from sensor data
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -84,27 +84,9 @@ impl DiseaseSensorModel {
         let mut features = Vec::with_capacity(self.feature_names.len());
         
         for feature_name in &self.feature_names {
-            let value = match feature_name.as_str() {
-                "soil_moisture" => data.soil_moisture.unwrap_or(0.0),
-                "air_humidity" => data.air_humidity.unwrap_or(0.0),
-                "temperature" => data.temperature.unwrap_or(0.0),
-                "soil_ph" => data.soil_ph.unwrap_or(0.0),
-                "nitrogen" => data.nitrogen.unwrap_or(0.0),
-                "phosphorus" => data.phosphorus.unwrap_or(0.0),
-                "potassium" => data.potassium.unwrap_or(0.0),
-                "co2" => data.co2.unwrap_or(0.0),
-                "pm25" => data.pm25.unwrap_or(0.0),
-                "pm10" => data.pm10.unwrap_or(0.0),
-                "wind_speed" => data.wind_speed.unwrap_or(0.0),
-                "rainfall" => data.rainfall.unwrap_or(0.0),
-                "solar_radiation" => data.solar_radiation.unwrap_or(0.0),
-                _ => {
-                    // Check if the feature is in additional_data
-                    data.additional_data
-                        .get(feature_name)
-                        .copied()
-                        .unwrap_or(0.0)
-                }
+            let value = match data.get_value(feature_name.as_str()) {
+                Some(val_str) => val_str.parse::<f32>().unwrap_or(0.0),
+                None => 0.0,
             };
             
             features.push(value);
@@ -189,7 +171,7 @@ impl DiseaseSensorModel {
     }
 }
 
-#[async_trait]
+#[async_trait::async_trait]
 impl SensorDataModel<DiseaseDetection> for DiseaseSensorModel {
     async fn predict(&self, data: &SensorData) -> AgriResult<PredictionResult<DiseaseDetection>> {
         if !self.is_loaded {
@@ -230,6 +212,7 @@ impl SensorDataModel<DiseaseDetection> for DiseaseSensorModel {
         // Create prediction result
         let result = PredictionResult {
             timestamp: data.timestamp,
+            location: data.location.clone(),
             prediction: disease_detection,
             confidence,
             additional_info: HashMap::new(),
@@ -283,4 +266,3 @@ impl SensorDataModel<DiseaseDetection> for DiseaseSensorModel {
         Ok(())
     }
 }
-

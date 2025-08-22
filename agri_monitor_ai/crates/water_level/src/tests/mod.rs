@@ -221,8 +221,8 @@ fn test_matrix_operations() {
     }
 
     // Vérifier que le min est 0 et le max est 1
-    let mut min_val = 1.0;
-    let mut max_val = 0.0;
+    let mut min_val: f32 = 1.0;
+    let mut max_val: f32 = 0.0;
     for row in &matrix {
         for &value in row {
             min_val = min_val.min(value);
@@ -232,4 +232,3 @@ fn test_matrix_operations() {
     assert!((min_val - 0.0).abs() < 0.001);
     assert!((max_val - 1.0).abs() < 0.001);
 }
-

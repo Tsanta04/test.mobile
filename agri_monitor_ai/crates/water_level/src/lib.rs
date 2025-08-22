@@ -22,6 +22,7 @@ use crate::types::{
     SensorPredictionRequest, ImagePredictionRequest
 };
 use common::error::AgriResult;
+use common::models::{Model, SensorDataModel, ImageModel};
 
 /// Gestionnaire principal pour les prédictions de taux d'eau
 pub struct WaterLevelPredictor {
@@ -44,8 +45,8 @@ impl WaterLevelPredictor {
         sensor_model_path: &str,
         image_model_path: &str,
     ) -> AgriResult<()> {
-        self.sensor_model.load(sensor_model_path).await?;
-        self.image_model.load(image_model_path).await?;
+        Model::load(&mut self.sensor_model, sensor_model_path).await?;
+        Model::load(&mut self.image_model, image_model_path).await?;
         Ok(())
     }
 
@@ -55,7 +56,8 @@ impl WaterLevelPredictor {
         request: SensorPredictionRequest,
     ) -> AgriResult<(WaterLevelPrediction, IrrigationRecommendation)> {
         // Prédire le taux d'humidité
-        let prediction = self.sensor_model.predict(&request.sensor_data).await?;
+        let prediction_result = SensorDataModel::predict(&self.sensor_model, &request.sensor_data).await?;
+        let prediction = prediction_result.prediction;
         
         // Générer une recommandation d'arrosage basée sur la prédiction
         let recommendation = self.generate_irrigation_recommendation(&prediction, &request).await?;
@@ -69,7 +71,8 @@ impl WaterLevelPredictor {
         request: ImagePredictionRequest,
     ) -> AgriResult<(WaterLevelMap, IrrigationRecommendation)> {
         // Générer une carte d'humidité à partir de l'image
-        let water_map = self.image_model.predict(&request.image_data).await?;
+        let water_map_result = ImageModel::predict(&self.image_model, &request.image_data).await?;
+        let water_map = water_map_result.prediction;
         
         // Générer une recommandation d'arrosage basée sur la carte d'humidité
         let recommendation = self.generate_irrigation_recommendation_from_map(&water_map, &request).await?;
@@ -103,4 +106,3 @@ impl Default for WaterLevelPredictor {
         Self::new()
     }
 }
-
