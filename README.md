@@ -1,156 +1,150 @@
-# Food Truck Mobile App
+# Agricultural Management System Backend
 
-Une application mobile moderne développée avec React Native et Expo pour la gestion de produits.
+This is a backend application for an agricultural management system built with Rust, Actix-web, and Diesel ORM. The system allows for management of agricultural grounds, sensors, and monitoring of various agricultural metrics.
 
-## Fonctionnalités
+## Features
 
-- **Authentification complète** : Inscription, connexion, changement de mot de passe
-- **Gestion de produits** : Ajout, modification, suppression et visualisation de produits (Seul l'utilisateur ayant créé le produit peut le modifier ou le supprimer.)
-- **Système de notifications** : Notifications en temps réel
-- **Analytics** : Tableaux de bord avec statistiques et graphiques
-- **Interface moderne** : Design responsive avec thème sombre/clair
-- **Navigation intuitive** : Navigation par onglets avec Expo Router
+- User authentication and authorization with JWT
+- Role-based access control (admin, seller, buyer, supplier)
+- CRUD operations for all entities
+- Sensor data management
+- Ground monitoring
+- Alert system
+- Planning system
+- Messaging system
 
-## Prérequis
+## Database Schema
 
-Avant de commencer, assurez-vous d'avoir installé :
+The database consists of the following tables:
+- Users: User management with role-based access
+- Person: Personal information linked to users
+- Culture_type: Types of cultures
+- Location: Geographical data
+- Sensor_type and Sensor: Sensor management
+- Sensor_pack and Pack: Sensor packaging system
+- Ground: Agricultural grounds management
+- Discussion, Message, and Participant: Communication system
+- State: Monitoring states
+- Alert: Alert system with custom types
+- Planning: Scheduling system
 
-- **Node.js** (version 18 ou supérieure)
-- **npm** ou **yarn**
-- **Expo CLI** : `npm install -g @expo/cli`
-- **Git**
-
-### Pour le développement mobile :
-- **Expo Go** (application mobile pour tester)
-- **Android Studio** (pour émulateur Android)
-- **Xcode** (pour émulateur iOS - macOS uniquement)
-
-## Installation
-
-1. **Cloner le repository**
-   ```bash
-   git clone https://github.com/Tsanta04/test.mobile
-   cd test.mobile
-   ```
-
-2. **Installer les dépendances**
-   ```bash
-   npm install
-   # ou
-   yarn install
-   ```
-
-## Lancement
-
-### Développement local
-
-1. **Démarrer le serveur de développement**
-   ```bash
-   npm start
-   # ou
-   yarn start
-   ```
-
-2. **Choisir la plateforme de test**
-   - Appuyez sur `a` pour Android
-   - Appuyez sur `i` pour iOS
-   - Appuyez sur `w` pour Web
-   - Scannez le QR code avec Expo Go sur votre téléphone
-
-### Scripts disponibles
-
-```bash
-# Démarrer le serveur de développement
-npm start
-
-# Lancer sur Android
-npm run android
-
-# Lancer sur iOS
-npm run ios
-
-# Lancer sur Web
-npm run web
-
-# Lancer les tests
-npm test
-```
-
-## 📱 Test sur appareil physique
-
-1. **Installer Expo Go** sur votre téléphone
-   - [Android](https://play.google.com/store/apps/details?id=host.exp.exponent)
-   - [iOS](https://apps.apple.com/app/expo-go/id982107779)
-
-2. **Scanner le QR code** affiché dans le terminal ou le navigateur
-
-3. **Assurez-vous que votre téléphone et votre ordinateur sont sur le même réseau WiFi**
-
-## Structure du projet
+## Project Structure
 
 ```
-test.mobile/
-├── app/                    # Pages et navigation (Expo Router)
-│   ├── (auth)/            # Pages d'authentification
-│   ├── (tabs)/            # Navigation par onglets
-│   └── product/           # Pages de gestion des produits
-├── components/            # Composants réutilisables
-│   ├── Analytic/         # Composants d'analytics
-│   ├── Common/           # Composants communs
-│   ├── Form/             # Composants de formulaire
-│   └── ProductList/      # Composants de liste de produits
-├── contexts/             # Contextes React (état global)
-├── data/                 # Données JSON statiques
-└── constants/            # Constantes et types
+server/
+├── migrations/        # Database migrations
+├── src/
+│   ├── dto/           # Data Transfer Objects
+│   ├── handlers/      # HTTP request handlers
+│   ├── models/        # Database models
+│   ├── routes/        # API routes
+│   ├── services/      # Business logic
+│   ├── errors.rs      # Error handling
+│   ├── main.rs        # Application entry point
+│   └── schema.rs      # Database schema
+└── Cargo.toml         # Project dependencies
 ```
 
+## Setup and Installation
 
-## Dépannage
+### Prerequisites
 
-### Problèmes courants
+- Rust and Cargo
+- PostgreSQL
 
-1. **Erreur de dépendances**
-   ```bash
-   rm -rf node_modules
-   npm install
+### Steps
+
+1. Clone the repository:
+   ```
+   git clone <repository-url>
+   cd agricultural-management-system
    ```
 
-2. **Cache Expo corrompu**
-   ```bash
-   expo r -c
+2. Set up the database:
+   ```
+   createdb agricultural_db
    ```
 
-3. **Problèmes de métro bundler**
-   ```bash
-   npx expo start --clear
+3. Configure environment variables:
+   Create a `.env` file in the project root with the following content:
+   ```
+   DATABASE_URL=postgres://username:password@localhost/agricultural_db
+   JWT_SECRET=your_jwt_secret_key
+   RUST_LOG=debug
    ```
 
-### Logs et débogage
+4. Run database migrations:
+   ```
+   cd server
+   diesel migration run
+   ```
 
-- Utilisez `console.log()` pour le débogage
-- Les logs apparaissent dans le terminal de développement
-- Pour les erreurs, vérifiez la console du navigateur (web) ou les logs Expo
+5. Build and run the application:
+   ```
+   cargo run
+   ```
 
+The server will start at `http://localhost:8080`.
 
-## Support
+## API Endpoints
 
-Pour toute question ou problème :
-- N'hésitez pas de à me contacter
-- Consulter la documentation Expo : https://docs.expo.dev/
-- Consulter la documentation React Native : https://reactnative.dev/docs/getting-started
+### Authentication
+- `POST /api/auth/register`: Register a new user
+- `POST /api/auth/login`: Login and get JWT token
 
+### Users
+- `GET /api/users`: Get all users (admin only)
+- `GET /api/users/{id}`: Get user by ID
+- `PUT /api/users/{id}`: Update user
+- `DELETE /api/users/{id}`: Delete user
+- `GET /api/users/me`: Get current user
 
-##  Mises à jour
+### Persons
+- `POST /api/persons`: Create a new person
+- `GET /api/persons`: Get all persons (admin only)
+- `GET /api/persons/{id}`: Get person by ID
+- `PUT /api/persons/{id}`: Update person
+- `DELETE /api/persons/{id}`: Delete person
+- `GET /api/persons/user/{user_id}`: Get person by user ID
 
-Pour mettre à jour les dépendances :
+### Culture Types
+- `POST /api/culture-types`: Create a new culture type (admin only)
+- `GET /api/culture-types`: Get all culture types
+- `GET /api/culture-types/{id}`: Get culture type by ID
+- `PUT /api/culture-types/{id}`: Update culture type (admin only)
+- `DELETE /api/culture-types/{id}`: Delete culture type (admin only)
 
-```bash
-# Mettre à jour Expo CLI
-npm install -g @expo/cli@latest
+### Locations
+- `POST /api/locations`: Create a new location (admin or seller)
+- `GET /api/locations`: Get all locations
+- `GET /api/locations/{id}`: Get location by ID
+- `PUT /api/locations/{id}`: Update location (admin or seller)
+- `DELETE /api/locations/{id}`: Delete location (admin only)
 
-# Mettre à jour les dépendances
-npm update
+### Sensor Types
+- `POST /api/sensor-types`: Create a new sensor type (admin or supplier)
+- `GET /api/sensor-types`: Get all sensor types
+- `GET /api/sensor-types/{id}`: Get sensor type by ID
+- `PUT /api/sensor-types/{id}`: Update sensor type (admin or supplier)
+- `DELETE /api/sensor-types/{id}`: Delete sensor type (admin only)
 
-# Vérifier les vulnérabilités
-npm audit
-```
+### Sensors
+- `POST /api/sensors`: Create a new sensor (admin or supplier)
+- `GET /api/sensors`: Get all sensors
+- `GET /api/sensors/{id}`: Get sensor by ID
+- `PUT /api/sensors/{id}`: Update sensor (admin or supplier)
+- `DELETE /api/sensors/{id}`: Delete sensor (admin only)
+- `GET /api/sensors/type/{type_id}`: Get sensors by type
+
+## Security
+
+- JWT-based authentication
+- Password hashing with Argon2
+- Role-based access control
+- Input validation
+- Error handling
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+

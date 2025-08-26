@@ -1,0 +1,3 @@
+DROP TYPE IF EXISTS AlertType;
+DROP TYPE IF EXISTS LevelType;
+
