@@ -1,0 +1,21 @@
+-- Drop tables in reverse order to avoid foreign key constraints
+DROP TABLE IF EXISTS Planning;
+DROP TABLE IF EXISTS Alert;
+DROP TABLE IF EXISTS State;
+DROP TABLE IF EXISTS Participant;
+DROP TABLE IF EXISTS Message;
+DROP TABLE IF EXISTS Discussion;
+DROP TABLE IF EXISTS Ground;
+DROP TABLE IF EXISTS Pack;
+DROP TABLE IF EXISTS Sensor_pack;
+DROP TABLE IF EXISTS Sensor;
+DROP TABLE IF EXISTS Sensor_type;
+DROP TABLE IF EXISTS Location;
+DROP TABLE IF EXISTS Culture_type;
+DROP TABLE IF EXISTS Person;
+DROP TABLE IF EXISTS Users;
+
+-- Drop custom types
+DROP TYPE IF EXISTS AlertType;
+DROP TYPE IF EXISTS LevelType;
+

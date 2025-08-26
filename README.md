@@ -1,156 +1,187 @@
-# Food Truck Mobile App
+# Agricultural Monitoring Backend
 
-Une application mobile moderne développée avec React Native et Expo pour la gestion de produits.
+Ce projet est un backend développé avec Actix-web et Diesel ORM en Rust pour une application de surveillance agricole. Il fournit une API RESTful pour gérer les utilisateurs, les terrains, les capteurs, les alertes et les données de surveillance.
 
-## Fonctionnalités
+## Structure du Projet
 
-- **Authentification complète** : Inscription, connexion, changement de mot de passe
-- **Gestion de produits** : Ajout, modification, suppression et visualisation de produits (Seul l'utilisateur ayant créé le produit peut le modifier ou le supprimer.)
-- **Système de notifications** : Notifications en temps réel
-- **Analytics** : Tableaux de bord avec statistiques et graphiques
-- **Interface moderne** : Design responsive avec thème sombre/clair
-- **Navigation intuitive** : Navigation par onglets avec Expo Router
+```
+server/
+├── migrations/
+│   └── 2023-08-26-000000_create_tables/
+│       ├── up.sql
+│       └── down.sql
+├── src/
+│   ├── dto/
+│   │   ├── alert_dto.rs
+│   │   ├── ground_dto.rs
+│   │   ├── state_dto.rs
+│   │   ├── user_dto.rs
+│   │   └── mod.rs
+│   ├── handlers/
+│   │   ├── alert_handler.rs
+│   │   ├── ground_handler.rs
+│   │   ├── state_handler.rs
+│   │   ├── user_handler.rs
+│   │   └── mod.rs
+│   ├── models/
+│   │   ├── alert.rs
+│   │   ├── discussion.rs
+│   │   ├── ground.rs
+│   │   ├── message.rs
+│   │   ├── participant.rs
+│   │   ├── state.rs
+│   │   ├── user.rs
+│   │   └── mod.rs
+│   ├── services/
+│   │   ├── alert_service.rs
+│   │   ├── discussion_service.rs
+│   │   ├── ground_service.rs
+│   │   ├── state_service.rs
+│   │   ├── user_service.rs
+│   │   └── mod.rs
+│   ├── error.rs
+│   ├── schema.rs
+│   └── main.rs
+├── Cargo.toml
+├── diesel.toml
+└── .env
+```
 
 ## Prérequis
 
-Avant de commencer, assurez-vous d'avoir installé :
+- Rust (édition 2021 ou supérieure)
+- PostgreSQL
+- Diesel CLI (`cargo install diesel_cli --no-default-features --features postgres`)
 
-- **Node.js** (version 18 ou supérieure)
-- **npm** ou **yarn**
-- **Expo CLI** : `npm install -g @expo/cli`
-- **Git**
+## Configuration
 
-### Pour le développement mobile :
-- **Expo Go** (application mobile pour tester)
-- **Android Studio** (pour émulateur Android)
-- **Xcode** (pour émulateur iOS - macOS uniquement)
-
-## Installation
-
-1. **Cloner le repository**
-   ```bash
-   git clone https://github.com/Tsanta04/test.mobile
-   cd test.mobile
+1. Créez une base de données PostgreSQL
+2. Configurez le fichier `.env` avec vos informations de connexion:
+   ```
+   DATABASE_URL=postgres://username:password@localhost/database_name
+   RUST_LOG=debug
+   JWT_SECRET=your_secret_key_here
    ```
 
-2. **Installer les dépendances**
-   ```bash
-   npm install
-   # ou
-   yarn install
+## Installation et Exécution
+
+1. Clonez le dépôt
+2. Exécutez les migrations de base de données:
    ```
-
-## Lancement
-
-### Développement local
-
-1. **Démarrer le serveur de développement**
-   ```bash
-   npm start
-   # ou
-   yarn start
+   diesel migration run
    ```
-
-2. **Choisir la plateforme de test**
-   - Appuyez sur `a` pour Android
-   - Appuyez sur `i` pour iOS
-   - Appuyez sur `w` pour Web
-   - Scannez le QR code avec Expo Go sur votre téléphone
-
-### Scripts disponibles
-
-```bash
-# Démarrer le serveur de développement
-npm start
-
-# Lancer sur Android
-npm run android
-
-# Lancer sur iOS
-npm run ios
-
-# Lancer sur Web
-npm run web
-
-# Lancer les tests
-npm test
-```
-
-## 📱 Test sur appareil physique
-
-1. **Installer Expo Go** sur votre téléphone
-   - [Android](https://play.google.com/store/apps/details?id=host.exp.exponent)
-   - [iOS](https://apps.apple.com/app/expo-go/id982107779)
-
-2. **Scanner le QR code** affiché dans le terminal ou le navigateur
-
-3. **Assurez-vous que votre téléphone et votre ordinateur sont sur le même réseau WiFi**
-
-## Structure du projet
-
-```
-test.mobile/
-├── app/                    # Pages et navigation (Expo Router)
-│   ├── (auth)/            # Pages d'authentification
-│   ├── (tabs)/            # Navigation par onglets
-│   └── product/           # Pages de gestion des produits
-├── components/            # Composants réutilisables
-│   ├── Analytic/         # Composants d'analytics
-│   ├── Common/           # Composants communs
-│   ├── Form/             # Composants de formulaire
-│   └── ProductList/      # Composants de liste de produits
-├── contexts/             # Contextes React (état global)
-├── data/                 # Données JSON statiques
-└── constants/            # Constantes et types
-```
-
-
-## Dépannage
-
-### Problèmes courants
-
-1. **Erreur de dépendances**
-   ```bash
-   rm -rf node_modules
-   npm install
+3. Compilez et exécutez le serveur:
    ```
-
-2. **Cache Expo corrompu**
-   ```bash
-   expo r -c
+   cargo run
    ```
+4. Le serveur sera accessible à l'adresse `http://localhost:8080`
 
-3. **Problèmes de métro bundler**
-   ```bash
-   npx expo start --clear
-   ```
+## Fonctionnalités
 
-### Logs et débogage
+### Authentification
+- Inscription et connexion des utilisateurs
+- Authentification basée sur JWT
+- Gestion des rôles (vendeur, acheteur, fournisseur)
 
-- Utilisez `console.log()` pour le débogage
-- Les logs apparaissent dans le terminal de développement
-- Pour les erreurs, vérifiez la console du navigateur (web) ou les logs Expo
+### Gestion des Terrains
+- CRUD complet pour les terrains agricoles
+- Filtrage par utilisateur, type de culture, emplacement
+- Association avec des packs de capteurs
 
+### Surveillance des États
+- Suivi des métriques (température, humidité, santé, etc.)
+- Historique des données par plage de dates
+- Dernières données par pack de capteurs
 
-## Support
+### Système d'Alertes
+- Alertes basées sur différents types (santé, production, etc.)
+- Niveaux d'urgence (faible, moyen, élevé, urgent)
+- Marquage des alertes comme vues
+- Recommandations associées
 
-Pour toute question ou problème :
-- N'hésitez pas de à me contacter
-- Consulter la documentation Expo : https://docs.expo.dev/
-- Consulter la documentation React Native : https://reactnative.dev/docs/getting-started
+### Système de Discussion
+- Discussions entre utilisateurs
+- Messagerie
+- Gestion des participants
 
+## API Endpoints
 
-##  Mises à jour
+### Utilisateurs
+- `GET /api/users` - Liste tous les utilisateurs
+- `GET /api/users/{id}` - Obtient un utilisateur par ID
+- `POST /api/users` - Crée un nouvel utilisateur
+- `PUT /api/users/{id}` - Met à jour un utilisateur
+- `DELETE /api/users/{id}` - Supprime un utilisateur
+- `POST /api/login` - Authentifie un utilisateur
 
-Pour mettre à jour les dépendances :
+### Terrains
+- `GET /api/grounds` - Liste tous les terrains
+- `GET /api/grounds/{id}` - Obtient un terrain par ID
+- `POST /api/grounds` - Crée un nouveau terrain
+- `PUT /api/grounds/{id}` - Met à jour un terrain
+- `DELETE /api/grounds/{id}` - Supprime un terrain
+- `GET /api/grounds/user/{user_id}` - Liste les terrains d'un utilisateur
+- `GET /api/grounds/culture/{culture_type_id}` - Liste les terrains par type de culture
+- `GET /api/grounds/location/{location_id}` - Liste les terrains par emplacement
+- `GET /api/grounds/pack/{pack_id}` - Liste les terrains par pack de capteurs
 
-```bash
-# Mettre à jour Expo CLI
-npm install -g @expo/cli@latest
+### États
+- `GET /api/states` - Liste tous les états
+- `GET /api/states/{id}` - Obtient un état par ID
+- `POST /api/states` - Crée un nouvel état
+- `PUT /api/states/{id}` - Met à jour un état
+- `DELETE /api/states/{id}` - Supprime un état
+- `GET /api/states/pack/{pack_id}` - Liste les états d'un pack de capteurs
+- `GET /api/states/pack/{pack_id}/latest` - Obtient le dernier état d'un pack
+- `POST /api/states/pack/{pack_id}/date-range` - Liste les états dans une plage de dates
 
-# Mettre à jour les dépendances
-npm update
+### Alertes
+- `GET /api/alerts` - Liste toutes les alertes
+- `GET /api/alerts/{id}` - Obtient une alerte par ID
+- `POST /api/alerts` - Crée une nouvelle alerte
+- `PUT /api/alerts/{id}` - Met à jour une alerte
+- `DELETE /api/alerts/{id}` - Supprime une alerte
+- `GET /api/alerts/state/{state_id}` - Liste les alertes d'un état
+- `GET /api/alerts/type/{alert_type}` - Liste les alertes par type
+- `GET /api/alerts/unseen` - Liste les alertes non vues
+- `PUT /api/alerts/{id}/seen` - Marque une alerte comme vue
 
-# Vérifier les vulnérabilités
-npm audit
-```
+## Modèle de Données
+
+Le système est basé sur les entités suivantes:
+
+- **Users**: Gestion des utilisateurs et authentification
+- **Person**: Informations personnelles liées aux utilisateurs
+- **Culture_type**: Types de cultures agricoles
+- **Location**: Emplacements géographiques
+- **Sensor_type**: Types de capteurs
+- **Sensor**: Capteurs individuels
+- **Sensor_pack**: Packs de capteurs
+- **Pack**: Association entre capteurs et packs
+- **Ground**: Terrains agricoles
+- **Discussion**: Système de discussion
+- **Message**: Messages de communication
+- **Participant**: Participants aux discussions
+- **State**: Métriques de surveillance
+- **Alert**: Système d'alertes
+- **Planning**: Gestion des plannings
+
+## Technologies Utilisées
+
+- **Actix-web**: Framework web performant en Rust
+- **Diesel**: ORM pour Rust avec support PostgreSQL
+- **Serde**: Sérialisation/désérialisation
+- **Jsonwebtoken**: Gestion des JWT
+- **Argon2**: Hachage sécurisé des mots de passe
+- **Chrono**: Gestion des dates et heures
+- **Dotenv**: Gestion des variables d'environnement
+- **Env_logger**: Journalisation
+
+## Sécurité
+
+- Mots de passe hachés avec Argon2
+- Authentification par JWT
+- Contrôle d'accès basé sur les rôles
+- Validation des entrées
+- Configuration CORS
+
