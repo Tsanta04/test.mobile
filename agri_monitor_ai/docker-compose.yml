@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # Service API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgres://db_user:db_password@postgres:5432/agri_monitor}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017}
+      - MONGODB_DB=${MONGODB_DB:-agri_monitor}
+      - INFLUXDB_URL=${INFLUXDB_URL:-http://influxdb:8086}
+      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN:-mytoken}
+      - INFLUXDB_ORG=${INFLUXDB_ORG:-myorg}
+      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET:-agri_monitor}
+      - RUST_LOG=${RUST_LOG:-info}
+    depends_on:
+      - postgres
+      - mongodb
+      - influxdb
+    volumes:
+      - ./models:/app/models
+    restart: unless-stopped
+
+  # Base de données PostgreSQL pour les données relationnelles
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-db_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db_password}
+      - POSTGRES_DB=${POSTGRES_DB:-agri_monitor}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  # Base de données MongoDB pour les images et documents
+  mongodb:
+    image: mongo:6
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+
+  # Base de données InfluxDB pour les séries temporelles
+  influxdb:
+    image: influxdb:2.7
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_ADMIN_USER:-admin}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_ADMIN_PASSWORD:-admin_password}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG:-myorg}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET:-agri_monitor}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN:-mytoken}
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    ports:
+      - "8086:8086"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  influxdb_data:
+

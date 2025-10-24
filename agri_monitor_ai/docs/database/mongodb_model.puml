@@ -1,0 +1,185 @@
+@startuml MongoDB Model
+
+' Style
+!define COLLECTION_BORDER_COLOR #073B4C
+!define COLLECTION_HEADER_COLOR #118AB2
+!define COLLECTION_ROW_COLOR #EFF7F6
+!define RELATIONSHIP_COLOR #06D6A0
+!define REF_COLOR #EF476F
+!define FIELD_COLOR #FFD166
+
+skinparam class {
+    BackgroundColor COLLECTION_ROW_COLOR
+    BorderColor COLLECTION_BORDER_COLOR
+    HeaderBackgroundColor COLLECTION_HEADER_COLOR
+    ArrowColor RELATIONSHIP_COLOR
+}
+
+' Collections
+
+class images {
+    + _id : ObjectId
+    --
+    timestamp : ISODate
+    location : GeoJSON Point
+    field_id : UUID <<REF>>
+    planting_id : UUID <<REF>>
+    image_type : String
+    capture_device : String
+    resolution : Object
+    format : String
+    size_bytes : Number
+    url : String
+    binary_data : Binary
+    metadata : Object
+    tags : Array<String>
+    created_at : ISODate
+    updated_at : ISODate
+}
+
+class disease_detections {
+    + _id : ObjectId
+    --
+    image_id : ObjectId <<REF>>
+    timestamp : ISODate
+    field_id : UUID <<REF>>
+    planting_id : UUID <<REF>>
+    disease_type : String
+    probability : Number
+    severity : String
+    affected_area_percentage : Number
+    bounding_boxes : Array<Object>
+    recommendations : Array<String>
+    model_version : String
+    created_at : ISODate
+}
+
+class water_level_maps {
+    + _id : ObjectId
+    --
+    timestamp : ISODate
+    field_id : UUID <<REF>>
+    source_type : String
+    source_id : ObjectId <<REF>>
+    water_level_map : Array<Array<Number>>
+    resolution : Object
+    geo_reference : Object
+    average_water_level : Number
+    status : String
+    recommendations : Array<String>
+    model_version : String
+    created_at : ISODate
+}
+
+class fertility_maps {
+    + _id : ObjectId
+    --
+    timestamp : ISODate
+    field_id : UUID <<REF>>
+    source_type : String
+    source_id : ObjectId <<REF>>
+    fertility_map : Array<Array<Number>>
+    resolution : Object
+    geo_reference : Object
+    average_fertility : Number
+    nutrient_levels : Object
+    recommendations : Array<String>
+    model_version : String
+    created_at : ISODate
+}
+
+class air_quality_maps {
+    + _id : ObjectId
+    --
+    timestamp : ISODate
+    location : GeoJSON Point
+    radius_meters : Number
+    source_type : String
+    source_id : ObjectId <<REF>>
+    air_quality_map : Array<Array<Number>>
+    resolution : Object
+    geo_reference : Object
+    average_air_quality_index : Number
+    category : String
+    pollutant_levels : Object
+    recommendations : Array<String>
+    model_version : String
+    created_at : ISODate
+}
+
+class yield_maps {
+    + _id : ObjectId
+    --
+    timestamp : ISODate
+    field_id : UUID <<REF>>
+    planting_id : UUID <<REF>>
+    source_type : String
+    source_id : ObjectId <<REF>>
+    yield_map : Array<Array<Number>>
+    resolution : Object
+    geo_reference : Object
+    average_yield_per_ha : Number
+    total_estimated_yield : Number
+    confidence_level : Number
+    recommendations : Array<String>
+    model_version : String
+    created_at : ISODate
+}
+
+class maturity_maps {
+    + _id : ObjectId
+    --
+    timestamp : ISODate
+    field_id : UUID <<REF>>
+    planting_id : UUID <<REF>>
+    source_type : String
+    source_id : ObjectId <<REF>>
+    maturity_map : Array<Array<Number>>
+    resolution : Object
+    geo_reference : Object
+    average_maturity : Number
+    estimated_harvest_date : ISODate
+    days_to_harvest : Number
+    confidence_level : Number
+    recommendations : Array<String>
+    model_version : String
+    created_at : ISODate
+}
+
+class disaster_assessments {
+    + _id : ObjectId
+    --
+    timestamp : ISODate
+    field_id : UUID <<REF>>
+    disaster_type : String
+    source_type : String
+    source_id : ObjectId <<REF>>
+    disaster_detected : Boolean
+    probability : Number
+    damage_assessment : Object
+    damage_map : Array<Array<Number>>
+    resolution : Object
+    geo_reference : Object
+    recommendations : Array<String>
+    model_version : String
+    created_at : ISODate
+}
+
+' Relations
+images -- disease_detections : analyzed_for
+images -- water_level_maps : source_for
+images -- fertility_maps : source_for
+images -- air_quality_maps : source_for
+images -- yield_maps : source_for
+images -- maturity_maps : source_for
+images -- disaster_assessments : source_for
+
+note "Références vers PostgreSQL" as N1
+note "field_id: Référence à fields.id" as N2
+note "planting_id: Référence à plantings.id" as N3
+
+N1 .. N2
+N2 .. N3
+
+@enduml
+

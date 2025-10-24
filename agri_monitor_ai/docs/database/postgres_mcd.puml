@@ -1,0 +1,241 @@
+@startuml PostgreSQL MCD
+
+' Style
+!define TABLE_BORDER_COLOR #073B4C
+!define TABLE_HEADER_COLOR #118AB2
+!define TABLE_ROW_COLOR #EFF7F6
+!define RELATIONSHIP_COLOR #06D6A0
+!define FK_COLOR #EF476F
+!define PK_COLOR #FFD166
+
+skinparam class {
+    BackgroundColor TABLE_ROW_COLOR
+    BorderColor TABLE_BORDER_COLOR
+    HeaderBackgroundColor TABLE_HEADER_COLOR
+    ArrowColor RELATIONSHIP_COLOR
+}
+
+' Entités
+
+class users {
+    + id : UUID <<PK>>
+    --
+    username : VARCHAR(50)
+    email : VARCHAR(100)
+    password_hash : VARCHAR(255)
+    role : VARCHAR(20)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+class user_sessions {
+    + id : UUID <<PK>>
+    --
+    # user_id : UUID <<FK>>
+    token : VARCHAR(255)
+    expires_at : TIMESTAMP
+    created_at : TIMESTAMP
+}
+
+class farms {
+    + id : UUID <<PK>>
+    --
+    # owner_id : UUID <<FK>>
+    name : VARCHAR(100)
+    location : GEOGRAPHY(POINT)
+    total_area_ha : DECIMAL(10,2)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+class fields {
+    + id : UUID <<PK>>
+    --
+    # farm_id : UUID <<FK>>
+    name : VARCHAR(100)
+    area_ha : DECIMAL(10,2)
+    boundary : GEOGRAPHY(POLYGON)
+    soil_type : VARCHAR(50)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+class crops {
+    + id : UUID <<PK>>
+    --
+    name : VARCHAR(100)
+    scientific_name : VARCHAR(100)
+    crop_type : VARCHAR(50)
+    growing_season : VARCHAR(50)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+class plantings {
+    + id : UUID <<PK>>
+    --
+    # field_id : UUID <<FK>>
+    # crop_id : UUID <<FK>>
+    planting_date : DATE
+    expected_harvest_date : DATE
+    status : VARCHAR(20)
+    variety : VARCHAR(100)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+class economic_data {
+    + id : UUID <<PK>>
+    --
+    # planting_id : UUID <<FK>>
+    fertilizer_cost_per_ha : DECIMAL(10,2)
+    water_cost_per_ha : DECIMAL(10,2)
+    labor_cost_per_ha : DECIMAL(10,2)
+    other_costs_per_ha : DECIMAL(10,2)
+    expected_yield_per_ha : DECIMAL(10,2)
+    expected_price_per_ton : DECIMAL(10,2)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+class market_prices {
+    + id : UUID <<PK>>
+    --
+    # crop_id : UUID <<FK>>
+    price_date : DATE
+    price_per_ton : DECIMAL(10,2)
+    market_location : VARCHAR(100)
+    created_at : TIMESTAMP
+}
+
+class treatments {
+    + id : UUID <<PK>>
+    --
+    # planting_id : UUID <<FK>>
+    treatment_type : VARCHAR(50)
+    treatment_date : DATE
+    product_name : VARCHAR(100)
+    application_rate : DECIMAL(10,2)
+    application_unit : VARCHAR(20)
+    cost : DECIMAL(10,2)
+    notes : TEXT
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+class irrigation_events {
+    + id : UUID <<PK>>
+    --
+    # field_id : UUID <<FK>>
+    irrigation_date : DATE
+    water_amount_mm : DECIMAL(10,2)
+    irrigation_type : VARCHAR(50)
+    duration_hours : DECIMAL(5,2)
+    cost : DECIMAL(10,2)
+    created_at : TIMESTAMP
+}
+
+class harvests {
+    + id : UUID <<PK>>
+    --
+    # planting_id : UUID <<FK>>
+    harvest_date : DATE
+    yield_tons : DECIMAL(10,2)
+    quality_grade : VARCHAR(20)
+    notes : TEXT
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+class sensor_configs {
+    + id : UUID <<PK>>
+    --
+    # field_id : UUID <<FK>>
+    sensor_type : VARCHAR(50)
+    sensor_id : VARCHAR(100)
+    location : GEOGRAPHY(POINT)
+    installation_date : DATE
+    calibration_date : DATE
+    status : VARCHAR(20)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+class alert_configs {
+    + id : UUID <<PK>>
+    --
+    # user_id : UUID <<FK>>
+    # field_id : UUID <<FK>>
+    # crop_id : UUID <<FK>>
+    alert_type : VARCHAR(50)
+    threshold_value : DECIMAL(10,2)
+    threshold_unit : VARCHAR(20)
+    notification_method : VARCHAR(50)
+    is_active : BOOLEAN
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+class profitability_analyses {
+    + id : UUID <<PK>>
+    --
+    # planting_id : UUID <<FK>>
+    analysis_date : DATE
+    predicted_yield_per_ha : DECIMAL(10,2)
+    predicted_price_per_ton : DECIMAL(10,2)
+    estimated_revenue_per_ha : DECIMAL(10,2)
+    estimated_costs_per_ha : DECIMAL(10,2)
+    estimated_profit_per_ha : DECIMAL(10,2)
+    roi : DECIMAL(5,2)
+    confidence_level : DECIMAL(5,2)
+    created_at : TIMESTAMP
+}
+
+class production_date_predictions {
+    + id : UUID <<PK>>
+    --
+    # planting_id : UUID <<FK>>
+    prediction_date : DATE
+    estimated_harvest_date : DATE
+    days_to_harvest : INTEGER
+    confidence_level : DECIMAL(5,2)
+    prediction_method : VARCHAR(50)
+    created_at : TIMESTAMP
+}
+
+class production_rate_predictions {
+    + id : UUID <<PK>>
+    --
+    # planting_id : UUID <<FK>>
+    prediction_date : DATE
+    estimated_yield_per_ha : DECIMAL(10,2)
+    confidence_level : DECIMAL(5,2)
+    prediction_method : VARCHAR(50)
+    created_at : TIMESTAMP
+}
+
+' Relations
+users "1" -- "0..*" user_sessions : has
+users "1" -- "0..*" farms : owns
+users "1" -- "0..*" alert_configs : configures
+
+farms "1" -- "0..*" fields : contains
+
+fields "1" -- "0..*" plantings : hosts
+fields "1" -- "0..*" sensor_configs : monitors
+fields "1" -- "0..*" irrigation_events : receives
+fields "0..*" -- "0..*" alert_configs : triggers
+
+crops "1" -- "0..*" plantings : planted_as
+crops "1" -- "0..*" market_prices : priced_at
+crops "0..*" -- "0..*" alert_configs : monitored_for
+
+plantings "1" -- "0..1" economic_data : analyzed_as
+plantings "1" -- "0..*" treatments : receives
+plantings "1" -- "0..*" harvests : yields
+plantings "1" -- "0..*" profitability_analyses : evaluated_for
+plantings "1" -- "0..*" production_date_predictions : predicted_for
+plantings "1" -- "0..*" production_rate_predictions : estimated_for
+
+@enduml
+

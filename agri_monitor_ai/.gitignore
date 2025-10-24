@@ -1,0 +1,31 @@
+# Fichiers générés par Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# Fichiers de l'environnement de développement
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Fichiers de configuration locaux
+.env
+
+# Fichiers de modèles
+/models/*.bin
+
+# Fichiers de logs
+*.log
+
+# Fichiers de base de données
+*.db
+*.sqlite
+
+# Fichiers Docker
+.dockerignore
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
